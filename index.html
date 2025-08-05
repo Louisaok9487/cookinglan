@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auckland Kitchen Guide</title>
+    <!-- Tailwind CSS CDN for modern, responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f8f8; /* Light background */
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .recipe-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease-in-out;
+        }
+        .recipe-card:hover {
+            transform: translateY(-5px);
+        }
+        .btn-primary {
+            background-color: #ef4444; /* Red-500 */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .btn-primary:hover {
+            background-color: #dc2626; /* Red-600 */
+        }
+        .btn-secondary {
+            background-color: #f3f4f6; /* Gray-100 */
+            color: #374151; /* Gray-700 */
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .btn-secondary:hover {
+            background-color: #e5e7eb; /* Gray-200 */
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .checkbox-label input[type="checkbox"] {
+            margin-right: 8px;
+            width: 18px;
+            height: 18px;
+            accent-color: #ef4444; /* Red-500 */
+        }
+        .step-completed {
+            text-decoration: line-through;
+            color: #6b7280; /* Gray-500 */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-8">
+    <div class="container mx-auto">
+        <!-- Header Section -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl sm:text-5xl font-bold text-red-600 mb-2">Auckland Kitchen Guide</h1>
+            <p class="text-lg text-gray-600">Your culinary companion for delicious meals at home.</p>
+        </header>
+
+        <!-- Recipe Selection Section -->
+        <section class="mb-10 p-6 recipe-card">
+            <h2 class="text-2xl font-semibold mb-4">Choose Your Culinary Adventure</h2>
+            <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                <div class="flex-1">
+                    <label for="country-select" class="block text-gray-700 text-sm font-bold mb-2">Select by Country:</label>
+                    <select id="country-select" class="block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <option value="">-- Select a Country --</option>
+                        <option value="New Zealand">New Zealand</option>
+                        <option value="Thailand">Thailand</option>
+                        <option value="Italy">Italy</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="Japan">Japan</option>
+                        <option value="Korea">Korea</option>
+                        <option value="China">China</option>
+                        <option value="Taiwan">Taiwan</option>
+                        <option value="Vietnam">Vietnam</option>
+                        <option value="India">India</option>
+                        <option value="Malaysia">Malaysia</option>
+                        <option value="Singapore">Singapore</option>
+                        <option value="Indonesia">Indonesia</option>
+                        <option value="Philippines">Philippines</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label for="recipe-select" class="block text-gray-700 text-sm font-bold mb-2">Select by Dish Name:</label>
+                    <select id="recipe-select" class="block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <option value="">-- Select a Recipe --</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+            </div>
+            <button id="load-recipe-btn" class="btn-primary w-full sm:w-auto">Load Recipe</button>
+        </section>
+
+        <!-- Recipe Display Section -->
+        <section id="recipe-display" class="hidden mb-10 p-6 recipe-card">
+            <h2 id="recipe-title" class="text-3xl font-bold text-red-700 mb-4"></h2>
+            <p id="recipe-description" class="text-gray-700 mb-6"></p>
+
+            <!-- Mise en Place Guide -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-3">1. Mise en Place (Preparation)</h3>
+                <p class="text-gray-600 mb-4">Gather and prepare all your ingredients before you start cooking. This makes the process much smoother!</p>
+                <ul id="mise-en-place-list" class="list-disc list-inside text-gray-700 space-y-2">
+                    <!-- Mise en Place items will be populated by JavaScript -->
+                </ul>
+            </div>
+
+            <!-- Ingredients Section -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-3">2. Ingredients</h3>
+                <div id="ingredients-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Ingredients will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Instructions Section -->
+            <div>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-3">3. Step-by-Step Instructions</h3>
+                <ol id="instructions-list" class="space-y-4">
+                    <!-- Instructions will be populated by JavaScript -->
+                </ol>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Mock Recipe Data
+        // This data simulates what you might fetch from a database.
+        // It includes details for Smart Substitutions, Ingredient Visuals,
+        // Video Demonstrations, Mise en Place, and Checklist functionality.
+        const recipes = [
+            {
+                id: 'massaman-curry',
+                name: 'Massaman Curry (Thai)',
+                region: 'Asian',
+                country: 'Thailand',
+                description: 'A rich, relatively mild Thai curry that is a fusion of Thai and Indian flavours, with a hint of sweetness.',
+                image: 'https://placehold.co/600x400/FFD700/000000?text=Massaman+Curry',
+                miseEnPlace: [
+                    'Chop chicken into bite-sized pieces.',
+                    'Dice potatoes into 2cm cubes.',
+                    'Slice onion thinly.',
+                    'Chop peanuts roughly.',
+                    'Prepare coconut milk and curry paste.',
+                ],
+                ingredients: [
+                    { name: 'Chicken Thighs', quantity: '500g', unit: '', visual: 'https://placehold.co/100x100/ADD8E6/000000?text=Chicken', substitute: null },
+                    { name: 'Potatoes', quantity: '2 medium', unit: '', visual: 'https://placehold.co/100x100/FFD700/000000?text=Potatoes', substitute: null },
+                    { name: 'Massaman Curry Paste', quantity: '4 tbsp', unit: '', visual: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Curry+Paste', substitute: 'Red Curry Paste (adjust spice)' },
+                    { name: 'Coconut Milk', quantity: '400ml', unit: '', visual: 'https://placehold.co/100x100/A2D2FF/000000?text=Coconut+Milk', substitute: null },
+                    { name: 'Fish Sauce', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Fish+Sauce', substitute: 'Soy Sauce (for umami, not exact flavour)' },
+                    { name: 'Palm Sugar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Palm+Sugar', substitute: 'Brown Sugar' },
+                    { name: 'Onion', quantity: '1 small', unit: '', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Onion', substitute: null },
+                    { name: 'Roasted Peanuts', quantity: '50g', unit: '', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Peanuts', substitute: 'Cashews (for crunch)' },
+                    { name: 'Lime Leaves', quantity: '3', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Lime+Leaves', substitute: 'Lime zest (less aromatic)' }
+                ],
+                instructions: [
+                    { step: 'Heat a large pot or wok over medium heat. Add a little oil if your chicken is lean. Add the chicken pieces and cook until lightly browned.' },
+                    { step: 'Add the Massaman curry paste and stir-fry for 1-2 minutes until fragrant. This helps release the aromas.' },
+                    { step: 'Pour in the coconut milk and bring to a gentle simmer, stirring to combine with the paste.' },
+                    { step: 'Add the potatoes and onion. Simmer for 15-20 minutes, or until the potatoes are tender.' },
+                    { step: 'Stir in the fish sauce, palm sugar, and lime leaves. Taste and adjust seasoning as needed.' },
+                    { step: 'Add the roasted peanuts and simmer for another 5 minutes.' },
+                    { step: 'Serve hot with steamed jasmine rice.' }
+                ]
+            },
+            {
+                id: 'haggis-neeps-tatties',
+                name: 'Haggis, Neeps, and Tatties (Scottish)',
+                region: 'European',
+                country: 'United Kingdom', // Assuming Scotland is part of UK for country filter
+                description: 'A traditional Scottish dish, often served on Burns Night, consisting of haggis, mashed turnips (neeps), and mashed potatoes (tatties).',
+                image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Haggis',
+                miseEnPlace: [
+                    'Peel and chop potatoes.',
+                    'Peel and chop swede (neeps).',
+                    'Prepare haggis according to package instructions.',
+                ],
+                ingredients: [
+                    { name: 'Haggis', quantity: '500g', unit: '', visual: 'https://placehold.co/100x100/A0522D/FFFFFF?text=Haggis', substitute: 'Vegetarian Haggis, or a well-spiced savoury mince' },
+                    { name: 'Swede (Neeps)', quantity: '1 large', unit: '', visual: 'https://placehold.co/100x100/FFDAB9/000000?text=Swede', substitute: 'Turnip or Pumpkin' },
+                    { name: 'Potatoes (Tatties)', quantity: '4 medium', unit: '', visual: 'https://placehold.co/100x100/F4A460/000000?text=Potatoes', substitute: null },
+                    { name: 'Butter', quantity: '50g', unit: '', visual: 'https://placehold.co/100x100/FFD700/000000?text=Butter', substitute: null },
+                    { name: 'Milk', quantity: '50ml', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Milk', substitute: 'Cream or Plant-based milk' },
+                    { name: 'Salt', quantity: 'to taste', unit: '', visual: 'https://placehold.co/100x100/F5F5DC/000000?text=Salt', substitute: null },
+                    { name: 'Black Pepper', quantity: 'to taste', unit: '', visual: 'https://placehold.co/100x100/D3D3D3/000000?text=Pepper', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Cook the haggis according to the package instructions, usually by simmering or baking.' },
+                    { step: 'While the haggis cooks, boil the chopped swede in salted water until very tender (about 20-25 minutes). Drain well and mash with a knob of butter and seasoning.' },
+                    { step: 'In a separate pot, boil the chopped potatoes in salted water until very tender (about 15-20 minutes). Drain well and mash with butter, milk, salt, and pepper until smooth.' },
+                    { step: 'Serve the haggis with a side of mashed neeps and tatties.' }
+                ]
+            },
+            {
+                id: 'pavlova',
+                name: 'Classic Pavlova (New Zealand)',
+                region: 'Oceanic',
+                country: 'New Zealand',
+                description: 'A popular meringue-based dessert, crispy on the outside and soft and marshmallow-like on the inside, topped with whipped cream and fresh fruit.',
+                image: 'https://placehold.co/600x400/FFFACD/000000?text=Pavlova',
+                miseEnPlace: [
+                    'Separate egg whites carefully.',
+                    'Measure sugar, cornflour, and vinegar.',
+                    'Prepare fresh fruit for topping.',
+                ],
+                ingredients: [
+                    { name: 'Egg Whites', quantity: '4 large', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Egg+Whites', substitute: null },
+                    { name: 'Caster Sugar', quantity: '250g', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: 'Granulated Sugar (finer is better)' },
+                    { name: 'Cornflour', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/F5F5DC/000000?text=Cornflour', substitute: 'Cornstarch' },
+                    { name: 'White Vinegar', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/E0FFFF/000000?text=Vinegar', substitute: 'Lemon Juice' },
+                    { name: 'Vanilla Extract', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/FDF5E6/000000?text=Vanilla', substitute: null },
+                    { name: 'Thickened Cream', quantity: '300ml', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Cream', substitute: null },
+                    { name: 'Fresh Berries', quantity: '200g', unit: '', visual: 'https://placehold.co/100x100/FFC0CB/000000?text=Berries', substitute: 'Seasonal fruit like kiwi or passionfruit' }
+                ],
+                instructions: [
+                    { step: 'Preheat oven to 150°C (300°F). Line a baking tray with baking paper and draw a 20cm circle on it.' },
+                    { step: 'In a clean, dry bowl, beat egg whites with an electric mixer until soft peaks form.' },
+                    { step: 'Gradually add caster sugar, one tablespoon at a time, beating well after each addition until the meringue is thick and glossy and the sugar has dissolved.' },
+                    { step: 'Gently fold in the cornflour, vinegar, and vanilla extract.' },
+                    { step: 'Spoon the meringue onto the prepared baking paper, shaping it into the drawn circle with a slight dip in the centre.' },
+                    { step: 'Place in the oven and immediately reduce the temperature to 120°C (250°F). Bake for 1 hour and 15 minutes. Turn off the oven and leave the pavlova inside with the door ajar for at least 3-4 hours, or overnight, to cool completely.' },
+                    { step: 'Once completely cool, transfer to a serving plate. Whip the thickened cream until soft peaks form and spread over the pavlova. Top with fresh berries or your favourite fruit.' }
+                ]
+            },
+            {
+                id: 'sushi-rolls',
+                name: 'Classic Sushi Rolls (Maki) (Japanese)',
+                region: 'Asian',
+                country: 'Japan',
+                description: 'Learn to make simple and delicious homemade sushi rolls with your favourite fillings.',
+                image: 'https://placehold.co/600x400/8B0000/FFFFFF?text=Sushi+Rolls',
+                miseEnPlace: [
+                    'Cook sushi rice and season.',
+                    'Prepare fillings (slice fish, vegetables).',
+                    'Gather nori sheets and rolling mat.',
+                ],
+                ingredients: [
+                    { name: 'Sushi Rice', quantity: '2 cups', unit: 'uncooked', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Sushi+Rice', substitute: null },
+                    { name: 'Nori Sheets', quantity: '6', unit: '', visual: 'https://placehold.co/100x100/36454F/FFFFFF?text=Nori', substitute: null },
+                    { name: 'Rice Vinegar', quantity: '4 tbsp', unit: '', visual: 'https://placehold.co/100x100/E0FFFF/000000?text=Rice+Vinegar', substitute: 'Apple Cider Vinegar (less authentic)' },
+                    { name: 'Sugar', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
+                    { name: 'Salt', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/F5F5DC/000000?text=Salt', substitute: null },
+                    { name: 'Fresh Salmon', quantity: '150g', unit: '', visual: 'https://placehold.co/100x100/FF7F50/000000?text=Salmon', substitute: 'Tuna or Smoked Salmon' },
+                    { name: 'Cucumber', quantity: '1/2', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Cucumber', substitute: null },
+                    { name: 'Avocado', quantity: '1', unit: '', visual: 'https://placehold.co/100x100/ADFF2F/000000?text=Avocado', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Cook sushi rice according to package directions. While hot, mix with rice vinegar, sugar, and salt. Let cool to room temperature.' },
+                    { step: 'Place a nori sheet, shiny side down, on a bamboo rolling mat. Spread a thin, even layer of rice over 2/3 of the nori, leaving the top edge clear.' },
+                    { step: 'Arrange your chosen fillings (e.g., salmon, cucumber, avocado) in a line across the center of the rice.' },
+                    { step: 'Using the mat, carefully roll the sushi tightly from the bottom edge, pressing firmly as you roll. Moisten the clear edge of the nori to seal the roll.' },
+                    { step: 'Slice the roll into 6-8 pieces with a sharp, wet knife. Serve with soy sauce, wasabi, and pickled ginger.' }
+                ]
+            },
+            {
+                id: 'kimchi-jjigae',
+                name: 'Kimchi Jjigae (Korean)',
+                region: 'Asian',
+                country: 'Korea',
+                description: 'A hearty, spicy, and savoury Korean stew made with kimchi, tofu, pork (or other meat), and vegetables.',
+                image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Kimchi+Jjigae',
+                miseEnPlace: [
+                    'Slice pork belly and kimchi.',
+                    'Chop onion and spring onions.',
+                    'Prepare tofu cubes.',
+                ],
+                ingredients: [
+                    { name: 'Aged Kimchi', quantity: '2 cups', unit: 'chopped', visual: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Kimchi', substitute: null },
+                    { name: 'Pork Belly', quantity: '200g', unit: 'sliced', visual: 'https://placehold.co/100x100/CD5C5C/FFFFFF?text=Pork+Belly', substitute: 'Tuna (canned) or Mushrooms (for vegetarian)' },
+                    { name: 'Firm Tofu', quantity: '1 block', unit: 'cubed', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Tofu', substitute: null },
+                    { name: 'Onion', quantity: '1/2', unit: 'sliced', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Onion', substitute: null },
+                    { name: 'Spring Onions', quantity: '2', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null },
+                    { name: 'Gochujang (Korean Chilli Paste)', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Gochujang', substitute: 'Sriracha (less complex flavour)' },
+                    { name: 'Gochugaru (Korean Chilli Flakes)', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Gochugaru', substitute: 'Chilli flakes (not as vibrant)' },
+                    { name: 'Garlic', quantity: '3 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Anchovy Broth', quantity: '3 cups', unit: '', visual: 'https://placehold.co/100x100/A9A9A9/000000?text=Broth', substitute: 'Vegetable or Chicken Broth' }
+                ],
+                instructions: [
+                    { step: 'In a pot, sauté pork belly until lightly browned. Add kimchi and cook for 5-7 minutes until softened.' },
+                    { step: 'Add onion, garlic, gochujang, and gochugaru. Stir-fry for 2 minutes until fragrant.' },
+                    { step: 'Pour in anchovy broth and bring to a boil. Reduce heat and simmer for 10 minutes.' },
+                    { step: 'Add tofu and continue to simmer for another 5-10 minutes. Taste and adjust seasoning.' },
+                    { step: 'Garnish with spring onions and serve hot with rice.' }
+                ]
+            },
+            {
+                id: 'kung-pao-chicken',
+                name: 'Kung Pao Chicken (Chinese)',
+                region: 'Asian',
+                country: 'China',
+                description: 'A classic Sichuan dish featuring spicy, stir-fried chicken with peanuts, vegetables, and chilli peppers.',
+                image: 'https://placehold.co/600x400/CD5C5C/FFFFFF?text=Kung+Pao+Chicken',
+                miseEnPlace: [
+                    'Dice chicken and marinate.',
+                    'Chop vegetables (bell peppers, spring onions).',
+                    'Prepare sauce ingredients.',
+                ],
+                ingredients: [
+                    { name: 'Chicken Breast', quantity: '300g', unit: 'diced', visual: 'https://placehold.co/100x100/ADD8E6/000000?text=Chicken', substitute: 'Chicken Thighs' },
+                    { name: 'Peanuts', quantity: '50g', unit: 'roasted', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Peanuts', substitute: 'Cashews' },
+                    { name: 'Dried Red Chillies', quantity: '10-15', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Dried+Chillies', substitute: 'Fresh Bird\'s Eye Chillies (use less)' },
+                    { name: 'Sichuan Peppercorns', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Sichuan+Peppercorns', substitute: 'Black Peppercorns (different flavour profile)' },
+                    { name: 'Soy Sauce', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Rice Vinegar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/E0FFFF/000000?text=Rice+Vinegar', substitute: 'White Vinegar' },
+                    { name: 'Sugar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
+                    { name: 'Cornstarch', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F5F5DC/000000?text=Cornstarch', substitute: 'Flour (for thickening)' },
+                    { name: 'Spring Onions', quantity: '2', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null },
+                    { name: 'Garlic', quantity: '2 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Ginger', quantity: '1 inch', unit: 'grated', visual: 'https://placehold.co/100x100/F4A460/000000?text=Ginger', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Marinate diced chicken with 1 tbsp soy sauce and 1 tsp cornstarch for 15 minutes.' },
+                    { step: 'Prepare sauce by mixing remaining soy sauce, rice vinegar, sugar, and 1 tbsp cornstarch with 2 tbsp water.' },
+                    { step: 'Heat oil in a wok. Add dried chillies and Sichuan peppercorns and stir-fry until fragrant (about 30 seconds). Remove them if you prefer less heat.' },
+                    { step: 'Add marinated chicken and stir-fry until cooked through. Remove chicken.' },
+                    { step: 'Add garlic, ginger, and spring onion whites to the wok and stir-fry briefly. Add bell peppers (if using).' },
+                    { step: 'Return chicken to the wok. Pour in the sauce mixture and stir until thickened. Add peanuts and spring onion greens. Serve immediately with rice.' }
+                ]
+            },
+            {
+                id: 'taiwanese-beef-noodle',
+                name: 'Taiwanese Beef Noodle Soup (Taiwanese)',
+                region: 'Asian',
+                country: 'Taiwan',
+                description: 'A rich and aromatic beef noodle soup, a staple in Taiwanese cuisine, known for its tender beef and flavourful broth.',
+                image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Beef+Noodle',
+                miseEnPlace: [
+                    'Cut beef into chunks.',
+                    'Chop aromatics (ginger, garlic, spring onions).',
+                    'Prepare noodles and vegetables.',
+                ],
+                ingredients: [
+                    { name: 'Beef Brisket', quantity: '500g', unit: 'cubed', visual: 'https://placehold.co/100x100/A0522D/FFFFFF?text=Beef+Brisket', substitute: 'Beef Chuck' },
+                    { name: 'Beef Broth', quantity: '1.5 litres', unit: '', visual: 'https://placehold.co/100x100/A9A9A9/000000?text=Beef+Broth', substitute: null },
+                    { name: 'Soy Sauce', quantity: '4 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Rock Sugar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Rock+Sugar', substitute: 'Granulated Sugar' },
+                    { name: 'Star Anise', quantity: '2', unit: '', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Star+Anise', substitute: null },
+                    { name: 'Cinnamon Stick', quantity: '1', unit: '', visual: 'https://placehold.co/100x100/D2B48C/000000?text=Cinnamon', substitute: null },
+                    { name: 'Ginger', quantity: '4 slices', unit: '', visual: 'https://placehold.co/100x100/F4A460/000000?text=Ginger', substitute: null },
+                    { name: 'Garlic', quantity: '4 cloves', unit: 'smashed', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Tomato', quantity: '1', unit: 'chopped', visual: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Tomato', substitute: null },
+                    { name: 'Noodles', quantity: '4 servings', unit: 'fresh or dried', visual: 'https://placehold.co/100x100/FFD700/000000?text=Noodles', substitute: null },
+                    { name: 'Bok Choy', quantity: '200g', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Bok+Choy', substitute: 'Spinach or other leafy greens' }
+                ],
+                instructions: [
+                    { step: 'Blanch beef chunks in boiling water for 5 minutes, drain, and rinse. This removes impurities.' },
+                    { step: 'In a large pot, sauté ginger, garlic, star anise, and cinnamon stick until fragrant. Add beef and brown slightly.' },
+                    { step: 'Add soy sauce, rock sugar, chopped tomato, and beef broth. Bring to a boil, then reduce heat and simmer for 2-3 hours until beef is very tender.' },
+                    { step: 'Cook noodles according to package instructions. Blanch bok choy or other vegetables.' },
+                    { step: 'Assemble bowls: place cooked noodles, top with tender beef, pour over hot broth, and add blanched vegetables. Garnish with spring onions.' }
+                ]
+            },
+            {
+                id: 'pho-bo',
+                name: 'Phở Bò (Vietnamese Beef Noodle Soup)',
+                region: 'Asian',
+                country: 'Vietnam',
+                description: 'A fragrant and comforting Vietnamese beef noodle soup, known for its clear, aromatic broth, tender beef, and fresh herbs.',
+                image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Pho+Bo',
+                miseEnPlace: [
+                    'Roast ginger and onion.',
+                    'Toast spices.',
+                    'Prepare beef slices and herbs.',
+                ],
+                ingredients: [
+                    { name: 'Beef Bones', quantity: '1kg', unit: '', visual: 'https://placehold.co/100x100/A0522D/FFFFFF?text=Beef+Bones', substitute: null },
+                    { name: 'Beef Brisket', quantity: '500g', unit: '', visual: 'https://placehold.co/100x100/A0522D/FFFFFF?text=Beef+Brisket', substitute: 'Beef Chuck' },
+                    { name: 'Flat Rice Noodles', quantity: '400g', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Rice+Noodles', substitute: null },
+                    { name: 'Star Anise', quantity: '5', unit: '', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Star+Anise', substitute: null },
+                    { name: 'Cinnamon Stick', quantity: '1', unit: '', visual: 'https://placehold.co/100x100/D2B48C/000000?text=Cinnamon', substitute: null },
+                    { name: 'Black Cardamom Pods', quantity: '2', unit: '', visual: 'https://placehold.co/100x100/696969/FFFFFF?text=Cardamom', substitute: 'Green Cardamom (use more)' },
+                    { name: 'Coriander Seeds', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Coriander+Seeds', substitute: null },
+                    { name: 'Fennel Seeds', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Fennel+Seeds', substitute: null },
+                    { name: 'Ginger', quantity: '1 large piece', unit: 'sliced', visual: 'https://placehold.co/100x100/F4A460/000000?text=Ginger', substitute: null },
+                    { name: 'Onion', quantity: '1', unit: 'halved', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Onion', substitute: null },
+                    { name: 'Fish Sauce', quantity: '3 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Fish+Sauce', substitute: 'Soy Sauce (for umami)' },
+                    { name: 'Sugar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
+                    { name: 'Fresh Herbs', quantity: 'to serve', unit: '(basil, mint, coriander)', visual: 'https://placehold.co/100x100/90EE90/000000?text=Herbs', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Blanch beef bones and brisket in boiling water for 10 minutes, then rinse thoroughly. This removes impurities for a clear broth.' },
+                    { step: 'Char ginger and onion under a grill or in a dry pan until fragrant. Toast star anise, cinnamon, cardamom, coriander, and fennel seeds in a dry pan until aromatic.' },
+                    { step: 'Combine blanched bones, brisket, charred aromatics, toasted spices, fish sauce, and sugar in a large pot. Cover with water (about 4-5 litres) and bring to a boil. Skim any foam.' },
+                    { step: 'Reduce heat and simmer for at least 3-4 hours (or longer for more flavour), skimming impurities periodically. Remove brisket when tender, slice thinly, and set aside.' },
+                    { step: 'Strain the broth through a fine-mesh sieve, discarding solids. Taste and adjust seasoning.' },
+                    { step: 'Cook rice noodles according to package instructions. Arrange noodles, sliced beef, and fresh herbs in bowls. Pour hot broth over everything and serve immediately with lime wedges and chilli.' }
+                ]
+            },
+            {
+                id: 'chicken-tikka-masala',
+                name: 'Chicken Tikka Masala (Indian)',
+                region: 'Asian',
+                country: 'India',
+                description: 'A popular Indian curry with tender pieces of chicken cooked in a creamy, spiced tomato sauce.',
+                image: 'https://placehold.co/600x400/FF6347/FFFFFF?text=Chicken+Tikka+Masala',
+                miseEnPlace: [
+                    'Cut chicken into cubes and marinate.',
+                    'Chop onions and tomatoes.',
+                    'Prepare ginger and garlic paste.',
+                ],
+                ingredients: [
+                    { name: 'Chicken Breast', quantity: '500g', unit: 'cubed', visual: 'https://placehold.co/100x100/ADD8E6/000000?text=Chicken', substitute: 'Chicken Thigh' },
+                    { name: 'Plain Yoghurt', quantity: '1/2 cup', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Yoghurt', substitute: 'Coconut Cream (for dairy-free)' },
+                    { name: 'Ginger Garlic Paste', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Ginger+Garlic', substitute: null },
+                    { name: 'Turmeric Powder', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/FFD700/000000?text=Turmeric', substitute: null },
+                    { name: 'Cumin Powder', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Cumin', substitute: null },
+                    { name: 'Coriander Powder', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/D2B48C/000000?text=Coriander', substitute: null },
+                    { name: 'Garam Masala', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Garam+Masala', substitute: null },
+                    { name: 'Tomato Puree', quantity: '1 cup', unit: '', visual: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Tomato+Puree', substitute: 'Canned Crushed Tomatoes' },
+                    { name: 'Cream', quantity: '1/2 cup', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Cream', substitute: 'Coconut Cream' },
+                    { name: 'Onion', quantity: '1', unit: 'finely chopped', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Onion', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Marinate chicken with yoghurt, 1 tbsp ginger garlic paste, turmeric, cumin, and coriander powder for at least 30 minutes (or overnight).' },
+                    { step: 'Heat oil in a pan. Cook marinated chicken until lightly browned. Set aside.' },
+                    { step: 'In the same pan, sauté chopped onion until golden. Add remaining ginger garlic paste and cook for 1 minute.' },
+                    { step: 'Stir in tomato puree, garam masala, and a splash of water. Simmer for 10-15 minutes until sauce thickens and oil separates.' },
+                    { step: 'Add cooked chicken and cream. Simmer for another 5-10 minutes until chicken is cooked through and sauce is heated. Serve with rice or naan.' }
+                ]
+            },
+            {
+                id: 'laksa',
+                name: 'Laksa (Malaysian/Singaporean)',
+                region: 'Asian',
+                country: 'Malaysia',
+                description: 'A spicy noodle soup popular in Southeast Asian cuisine, with a rich and aromatic coconut milk-based broth.',
+                image: 'https://placehold.co/600x400/FF8C00/000000?text=Laksa',
+                miseEnPlace: [
+                    'Prepare laksa paste (or use store-bought).',
+                    'Cook noodles and prawns.',
+                    'Slice tofu puffs and fish cakes.',
+                ],
+                ingredients: [
+                    { name: 'Laksa Paste', quantity: '4 tbsp', unit: '', visual: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Laksa+Paste', substitute: 'Red Curry Paste + Chilli + Lemongrass' },
+                    { name: 'Coconut Milk', quantity: '400ml', unit: '', visual: 'https://placehold.co/100x100/A2D2FF/000000?text=Coconut+Milk', substitute: null },
+                    { name: 'Chicken Broth', quantity: '500ml', unit: '', visual: 'https://placehold.co/100x100/A9A9A9/000000?text=Chicken+Broth', substitute: 'Vegetable Broth' },
+                    { name: 'Prawns', quantity: '200g', unit: 'peeled', visual: 'https://placehold.co/100x100/FFC0CB/000000?text=Prawns', substitute: 'Chicken or Tofu' },
+                    { name: 'Tofu Puffs', quantity: '100g', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Tofu+Puffs', substitute: 'Fried Tofu' },
+                    { name: 'Fish Cakes', quantity: '100g', unit: 'sliced', visual: 'https://placehold.co/100x100/D3D3D3/000000?text=Fish+Cakes', substitute: 'Fish Balls or Crab Sticks' },
+                    { name: 'Vermicelli Noodles', quantity: '200g', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Vermicelli', substitute: 'Egg Noodles' },
+                    { name: 'Bean Sprouts', quantity: '100g', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Bean+Sprouts', substitute: null },
+                    { name: 'Coriander', quantity: 'to garnish', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Coriander', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Sauté laksa paste in a pot until fragrant. Add coconut milk and chicken broth, bring to a simmer.' },
+                    { step: 'Add prawns, tofu puffs, and fish cakes. Simmer until prawns are cooked through and tofu puffs are softened.' },
+                    { step: 'Cook vermicelli noodles according to package instructions. Drain well.' },
+                    { step: 'Assemble bowls: place noodles, top with broth, prawns, tofu puffs, and fish cakes. Garnish with fresh bean sprouts and coriander.' }
+                ]
+            },
+            {
+                id: 'nasi-goreng',
+                name: 'Nasi Goreng (Indonesian Fried Rice)',
+                region: 'Asian',
+                country: 'Indonesia',
+                description: 'A flavourful and popular Indonesian fried rice dish, often served with a fried egg and various accompaniments.',
+                image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Nasi+Goreng',
+                miseEnPlace: [
+                    'Cook rice (preferably day-old).',
+                    'Chop vegetables and meat.',
+                    'Prepare eggs.',
+                ],
+                ingredients: [
+                    { name: 'Cooked Rice', quantity: '3 cups', unit: 'day-old', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Rice', substitute: null },
+                    { name: 'Chicken Breast', quantity: '150g', unit: 'diced', visual: 'https://placehold.co/100x100/ADD8E6/000000?text=Chicken', substitute: 'Prawns or Tofu' },
+                    { name: 'Eggs', quantity: '2', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Eggs', substitute: null },
+                    { name: 'Garlic', quantity: '3 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Shallots', quantity: '2', unit: 'sliced', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Shallots', substitute: 'Red Onion' },
+                    { name: 'Kecap Manis (Sweet Soy Sauce)', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Kecap+Manis', substitute: 'Soy Sauce + Brown Sugar' },
+                    { name: 'Chilli Paste (Sambal Oelek)', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Chilli+Paste', substitute: 'Fresh Chilli (finely chopped)' },
+                    { name: 'Mixed Vegetables', quantity: '1 cup', unit: '(peas, carrots)', visual: 'https://placehold.co/100x100/90EE90/000000?text=Vegetables', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Heat oil in a wok or large frying pan. Fry eggs sunny side up and set aside.' },
+                    { step: 'Sauté minced garlic and sliced shallots until fragrant. Add diced chicken and cook until browned.' },
+                    { step: 'Add mixed vegetables and stir-fry for 2-3 minutes. Add day-old rice and break up any clumps.' },
+                    { step: 'Stir in kecap manis and chilli paste. Mix well, ensuring rice is evenly coated. Continue to stir-fry for 5-7 minutes until heated through and slightly crispy.' },
+                    { step: 'Serve nasi goreng hot, topped with a fried egg and cucumber slices.' }
+                ]
+            },
+            {
+                id: 'adobo',
+                name: 'Chicken Adobo (Filipino)',
+                region: 'Asian',
+                country: 'Philippines',
+                description: 'A popular Filipino dish made with chicken or pork, braised in vinegar, soy sauce, garlic, and peppercorns.',
+                image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Chicken+Adobo',
+                miseEnPlace: [
+                    'Cut chicken into serving pieces.',
+                    'Crush garlic cloves.',
+                    'Measure liquids.',
+                ],
+                ingredients: [
+                    { name: 'Chicken Pieces', quantity: '500g', unit: '', visual: 'https://placehold.co/100x100/ADD8E6/000000?text=Chicken', substitute: 'Pork Belly' },
+                    { name: 'Soy Sauce', quantity: '1/2 cup', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'White Vinegar', quantity: '1/2 cup', unit: '', visual: 'https://placehold.co/100x100/E0FFFF/000000?text=White+Vinegar', substitute: 'Cane Vinegar (more authentic)' },
+                    { name: 'Garlic', quantity: '6 cloves', unit: 'crushed', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Black Peppercorns', quantity: '1 tsp', unit: 'whole', visual: 'https://placehold.co/100x100/D3D3D3/000000?text=Peppercorns', substitute: null },
+                    { name: 'Bay Leaves', quantity: '2', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Bay+Leaves', substitute: null },
+                    { name: 'Water', quantity: '1/2 cup', unit: '', visual: 'https://placehold.co/100x100/A2D2FF/000000?text=Water', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Combine chicken, soy sauce, vinegar, crushed garlic, whole peppercorns, and bay leaves in a pot. Bring to a boil.' },
+                    { step: 'Reduce heat, cover, and simmer for 30-40 minutes, or until chicken is tender. Stir occasionally.' },
+                    { step: 'Remove lid and continue to simmer until sauce reduces and thickens slightly, and chicken is browned. Taste and adjust seasoning.' },
+                    { step: 'Serve hot with steamed rice.' }
+                ]
+            },
+            {
+                id: 'ramen',
+                name: 'Shoyu Ramen (Japanese)',
+                region: 'Asian',
+                country: 'Japan',
+                description: 'A classic Japanese ramen with a clear, soy sauce-based broth, often topped with pork, egg, and nori.',
+                image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Ramen',
+                miseEnPlace: [
+                    'Prepare ramen broth (or use good quality chicken/pork broth).',
+                    'Cook ramen noodles.',
+                    'Prepare toppings (slice pork, boil eggs).',
+                ],
+                ingredients: [
+                    { name: 'Ramen Noodles', quantity: '2 servings', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Ramen+Noodles', substitute: 'Instant Ramen Noodles (less ideal)' },
+                    { name: 'Chicken or Pork Broth', quantity: '4 cups', unit: '', visual: 'https://placehold.co/100x100/A9A9A9/000000?text=Broth', substitute: null },
+                    { name: 'Soy Sauce', quantity: '4 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Mirin', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Mirin', substitute: 'Dry Sherry + Sugar' },
+                    { name: 'Sake', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Sake', substitute: 'Dry White Wine' },
+                    { name: 'Pork Belly (Chashu)', quantity: '100g', unit: 'sliced', visual: 'https://placehold.co/100x100/CD5C5C/FFFFFF?text=Pork+Belly', substitute: 'Grilled Chicken' },
+                    { name: 'Soft-Boiled Eggs', quantity: '2', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Eggs', substitute: null },
+                    { name: 'Nori (Seaweed)', quantity: '2 sheets', unit: '', visual: 'https://placehold.co/100x100/36454F/FFFFFF?text=Nori', substitute: null },
+                    { name: 'Spring Onions', quantity: '2', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Prepare ramen broth by simmering chicken or pork bones for several hours, or use good quality store-bought broth. Season with soy sauce, mirin, and sake.' },
+                    { step: 'Cook ramen noodles according to package instructions. Drain well.' },
+                    { step: 'Assemble bowls: place cooked noodles, pour over hot broth, and arrange sliced chashu pork, soft-boiled eggs, nori, and chopped spring onions on top.' }
+                ]
+            },
+            {
+                id: 'bibimbap',
+                name: 'Bibimbap (Korean Mixed Rice)',
+                region: 'Asian',
+                country: 'Korea',
+                description: 'A colourful and nutritious Korean dish of warm rice topped with sautéed vegetables, chilli paste, and often beef and a fried egg.',
+                image: 'https://placehold.co/600x400/FFD700/000000?text=Bibimbap',
+                miseEnPlace: [
+                    'Cook rice.',
+                    'Prepare various vegetables (julienne, sauté).',
+                    'Cook beef (if using).',
+                ],
+                ingredients: [
+                    { name: 'Cooked Rice', quantity: '2 cups', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Rice', substitute: null },
+                    { name: 'Ground Beef', quantity: '150g', unit: '', visual: 'https://placehold.co/100x100/A0522D/FFFFFF?text=Ground+Beef', substitute: 'Mushrooms or Tofu (for vegetarian)' },
+                    { name: 'Spinach', quantity: '1 bunch', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spinach', substitute: null },
+                    { name: 'Carrots', quantity: '1', unit: 'julienned', visual: 'https://placehold.co/100x100/F4A460/000000?text=Carrots', substitute: null },
+                    { name: 'Courgette', quantity: '1/2', unit: 'julienned', visual: 'https://placehold.co/100x100/90EE90/000000?text=Courgette', substitute: 'Cucumber' },
+                    { name: 'Shiitake Mushrooms', quantity: '4', unit: 'sliced', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Mushrooms', substitute: 'Button Mushrooms' },
+                    { name: 'Eggs', quantity: '2', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Eggs', substitute: null },
+                    { name: 'Gochujang (Korean Chilli Paste)', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Gochujang', substitute: 'Sriracha + Sugar' },
+                    { name: 'Sesame Oil', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Sesame+Oil', substitute: null },
+                    { name: 'Garlic', quantity: '2 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Cook rice. Prepare each vegetable (spinach, carrots, courgette, mushrooms) by sautéing separately with a little garlic and sesame oil. Season lightly.' },
+                    { step: 'Cook ground beef (if using) and season with soy sauce and garlic.' },
+                    { step: 'Fry eggs sunny side up. In a bowl, combine gochujang, sesame oil, and a little sugar for the sauce.' },
+                    { step: 'Assemble bowls: place warm rice at the bottom. Artfully arrange each prepared vegetable, beef, and a fried egg on top. Serve with the gochujang sauce on the side.' }
+                ]
+            },
+            {
+                id: 'mapo-tofu',
+                name: 'Mapo Tofu (Chinese)',
+                region: 'Asian',
+                country: 'China',
+                description: 'A popular spicy Sichuan dish featuring silken tofu set in a fiery, savoury sauce with minced meat and fermented broad bean paste.',
+                image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Mapo+Tofu',
+                miseEnPlace: [
+                    'Cut tofu into cubes.',
+                    'Chop spring onions and garlic.',
+                    'Prepare sauce ingredients.',
+                ],
+                ingredients: [
+                    { name: 'Silken Tofu', quantity: '500g', unit: 'cubed', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Tofu', substitute: 'Firm Tofu (texture will be different)' },
+                    { name: 'Minced Pork', quantity: '150g', unit: '', visual: 'https://placehold.co/100x100/CD5C5C/FFFFFF?text=Minced+Pork', substitute: 'Minced Beef or Mushrooms (for vegetarian)' },
+                    { name: 'Doubanjiang (Fermented Broad Bean Paste)', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Doubanjiang', substitute: 'Chilli Bean Paste' },
+                    { name: 'Sichuan Peppercorns', quantity: '1 tsp', unit: 'whole', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Sichuan+Peppercorns', substitute: 'Black Peppercorns (less authentic numbing effect)' },
+                    { name: 'Chilli Oil', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Chilli+Oil', substitute: null },
+                    { name: 'Soy Sauce', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Chicken Broth', quantity: '1 cup', unit: '', visual: 'https://placehold.co/100x100/A9A9A9/000000?text=Broth', substitute: 'Vegetable Broth' },
+                    { name: 'Cornstarch Slurry', quantity: '1 tbsp', unit: '(1 tbsp cornstarch + 2 tbsp water)', visual: 'https://placehold.co/100x100/F5F5DC/000000?text=Cornstarch', substitute: null },
+                    { name: 'Spring Onions', quantity: '2', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null },
+                    { name: 'Garlic', quantity: '3 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Ginger', quantity: '1 inch', unit: 'minced', visual: 'https://placehold.co/100x100/F4A460/000000?text=Ginger', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Blanch tofu cubes in boiling salted water for 2-3 minutes, then drain gently. This firms the tofu and removes raw taste.' },
+                    { step: 'Heat oil in a wok. Add Sichuan peppercorns and stir-fry until fragrant. Remove peppercorns if you prefer less numbing spice.' },
+                    { step: 'Add minced pork and cook until browned. Add garlic, ginger, and doubanjiang. Stir-fry until fragrant.' },
+                    { step: 'Pour in chicken broth and soy sauce. Bring to a simmer. Gently add blanched tofu cubes.' },
+                    { step: 'Stir in cornstarch slurry to thicken the sauce. Cook until sauce is glossy. Drizzle with chilli oil and garnish with chopped spring onions. Serve hot with rice.' }
+                ]
+            },
+            {
+                id: 'pad-thai',
+                name: 'Pad Thai (Thai)',
+                region: 'Asian',
+                country: 'Thailand',
+                description: 'A classic Thai stir-fried noodle dish with rice noodles, eggs, tofu, prawns or chicken, and a tangy-sweet-savoury sauce.',
+                image: 'https://placehold.co/600x400/FFD700/000000?text=Pad+Thai',
+                miseEnPlace: [
+                    'Soak rice noodles.',
+                    'Prepare proteins (prawns, chicken, tofu).',
+                    'Chop vegetables and aromatics.',
+                    'Mix Pad Thai sauce.',
+                ],
+                ingredients: [
+                    { name: 'Flat Rice Noodles', quantity: '200g', unit: 'dried', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Rice+Noodles', substitute: null },
+                    { name: 'Prawns', quantity: '150g', unit: 'peeled', visual: 'https://placehold.co/100x100/FFC0CB/000000?text=Prawns', substitute: 'Chicken or Tofu' },
+                    { name: 'Firm Tofu', quantity: '100g', unit: 'cubed', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Tofu', substitute: null },
+                    { name: 'Eggs', quantity: '2', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Eggs', substitute: null },
+                    { name: 'Bean Sprouts', quantity: '1 cup', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Bean+Sprouts', substitute: null },
+                    { name: 'Garlic', quantity: '2 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Shallots', quantity: '1', unit: 'minced', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Shallots', substitute: 'Red Onion' },
+                    { name: 'Fish Sauce', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Fish+Sauce', substitute: 'Soy Sauce (for umami, not exact flavour)' },
+                    { name: 'Tamarind Paste', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Tamarind+Paste', substitute: 'Lime Juice + a pinch of sugar' },
+                    { name: 'Palm Sugar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Palm+Sugar', substitute: 'Brown Sugar' },
+                    { name: 'Roasted Peanuts', quantity: '2 tbsp', unit: 'crushed', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Peanuts', substitute: null },
+                    { name: 'Lime', quantity: '1', unit: 'wedges for serving', visual: 'https://placehold.co/100x100/ADFF2F/000000?text=Lime', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Soak rice noodles in warm water until pliable (about 20-30 minutes), then drain.' },
+                    { step: 'Prepare Pad Thai sauce by mixing fish sauce, tamarind paste, and palm sugar.' },
+                    { step: 'Heat oil in a wok. Sauté garlic and shallots until fragrant. Add prawns and tofu, cook until prawns turn pink.' },
+                    { step: 'Push ingredients to one side of the wok. Crack eggs into the empty side and scramble until just set. Mix with other ingredients.' },
+                    { step: 'Add drained noodles and Pad Thai sauce. Stir-fry vigorously until noodles are tender and sauce is absorbed. Add bean sprouts and spring onions, stir-fry briefly.' },
+                    { step: 'Serve hot, garnished with crushed peanuts and a lime wedge.' }
+                ]
+            },
+            {
+                id: 'tom-yum-goong',
+                name: 'Tom Yum Goong (Thai Spicy Shrimp Soup)',
+                region: 'Asian',
+                country: 'Thailand',
+                description: 'A classic hot and sour Thai soup, famous for its bold flavours of lemongrass, galangal, kaffir lime leaves, and fresh prawns.',
+                image: 'https://placehold.co/600x400/FF6347/FFFFFF?text=Tom+Yum+Goong',
+                miseEnPlace: [
+                    'Prepare lemongrass, galangal, lime leaves.',
+                    'Chop mushrooms and chillies.',
+                    'Peel and devein prawns.',
+                ],
+                ingredients: [
+                    { name: 'Prawns', quantity: '300g', unit: 'peeled and deveined', visual: 'https://placehold.co/100x100/FFC0CB/000000?text=Prawns', substitute: 'Chicken or Tofu' },
+                    { name: 'Lemongrass', quantity: '2 stalks', unit: 'bruised and sliced', visual: 'https://placehold.co/100x100/90EE90/000000?text=Lemongrass', substitute: null },
+                    { name: 'Galangal', quantity: '1 inch', unit: 'sliced', visual: 'https://placehold.co/100x100/F4A460/000000?text=Galangal', substitute: 'Ginger (different flavour)' },
+                    { name: 'Kaffir Lime Leaves', quantity: '4', unit: 'torn', visual: 'https://placehold.co/100x100/90EE90/000000?text=Lime+Leaves', substitute: 'Lime zest (less aromatic)' },
+                    { name: 'Mushrooms', quantity: '150g', unit: 'sliced', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Mushrooms', substitute: null },
+                    { name: 'Fish Sauce', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Fish+Sauce', substitute: 'Soy Sauce' },
+                    { name: 'Lime Juice', quantity: '3 tbsp', unit: 'freshly squeezed', visual: 'https://placehold.co/100x100/ADFF2F/000000?text=Lime+Juice', substitute: null },
+                    { name: 'Chilli Paste (Nam Prik Pao)', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Chilli+Paste', substitute: 'Chilli Oil' },
+                    { name: 'Coriander', quantity: 'to garnish', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Coriander', substitute: null },
+                    { name: 'Bird\'s Eye Chillies', quantity: '2-3', unit: 'crushed', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Chillies', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Bring 4 cups of water or chicken broth to a boil in a pot. Add lemongrass, galangal, and kaffir lime leaves. Simmer for 5 minutes to infuse flavours.' },
+                    { step: 'Add prawns and mushrooms. Cook until prawns turn pink and mushrooms are tender.' },
+                    { step: 'Stir in fish sauce, lime juice, and chilli paste. Taste and adjust seasoning as needed for desired sourness and spice.' },
+                    { step: 'Ladle into bowls and garnish with fresh coriander and crushed bird\'s eye chillies. Serve hot.' }
+                ]
+            },
+            {
+                id: 'sushi-nigiri',
+                name: 'Sushi Nigiri (Japanese)',
+                region: 'Asian',
+                country: 'Japan',
+                description: 'Hand-pressed sushi rice topped with a slice of fresh fish or other seafood.',
+                image: 'https://placehold.co/600x400/8B0000/FFFFFF?text=Sushi+Nigiri',
+                miseEnPlace: [
+                    'Cook and season sushi rice.',
+                    'Slice fish thinly.',
+                    'Prepare wasabi and soy sauce.',
+                ],
+                ingredients: [
+                    { name: 'Sushi Rice', quantity: '2 cups', unit: 'cooked and seasoned', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Sushi+Rice', substitute: null },
+                    { name: 'Fresh Salmon Fillet', quantity: '200g', unit: 'sushi-grade, sliced', visual: 'https://placehold.co/100x100/FF7F50/000000?text=Salmon', substitute: 'Tuna, Snapper, or Prawns' },
+                    { name: 'Wasabi', quantity: 'to taste', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Wasabi', substitute: null },
+                    { name: 'Soy Sauce', quantity: 'to serve', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Pickled Ginger', quantity: 'to serve', unit: '', visual: 'https://placehold.co/100x100/FFC0CB/000000?text=Pickled+Ginger', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Ensure sushi rice is cooked and seasoned properly, cooled to room temperature.' },
+                    { step: 'With wet hands, take a small amount of sushi rice (about 20g) and gently form it into an oval shape.' },
+                    { step: 'Dab a tiny amount of wasabi onto one side of a sliced fish piece.' },
+                    { step: 'Place the fish, wasabi-side down, onto the rice. Gently press and shape to adhere the fish to the rice.' },
+                    { step: 'Repeat for remaining pieces. Serve immediately with soy sauce and pickled ginger.' }
+                ]
+            },
+            {
+                id: 'tempura',
+                name: 'Vegetable Tempura (Japanese)',
+                region: 'Asian',
+                country: 'Japan',
+                description: 'Lightly battered and deep-fried vegetables, a popular Japanese dish known for its crispy texture.',
+                image: 'https://placehold.co/600x400/FFD700/000000?text=Tempura',
+                miseEnPlace: [
+                    'Prepare vegetables (slice, pat dry).',
+                    'Make tempura batter.',
+                    'Heat oil for deep frying.',
+                ],
+                ingredients: [
+                    { name: 'Plain Flour', quantity: '1 cup', unit: '', visual: 'https://placehold.co/100x100/F5F5DC/000000?text=Flour', substitute: null },
+                    { name: 'Cornstarch', quantity: '1/4 cup', unit: '', visual: 'https://placehold.co/100x100/F5F5DC/000000?text=Cornstarch', substitute: null },
+                    { name: 'Cold Water', quantity: '1 cup', unit: 'ice-cold', visual: 'https://placehold.co/100x100/A2D2FF/000000?text=Cold+Water', substitute: null },
+                    { name: 'Egg Yolk', quantity: '1', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Egg+Yolk', substitute: null },
+                    { name: 'Vegetables for Tempura', quantity: 'assorted', unit: '(e.g., kumara, broccoli, mushrooms, capsicum)', visual: 'https://placehold.co/100x100/90EE90/000000?text=Vegetables', substitute: null },
+                    { name: 'Vegetable Oil', quantity: 'for deep frying', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Oil', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Prepare vegetables: slice kumara thinly, break broccoli into florets, slice mushrooms, cut capsicum into strips. Ensure they are dry.' },
+                    { step: 'Make tempura batter: whisk egg yolk into ice-cold water. Sift flour and cornstarch into the liquid. Mix briefly until just combined (lumps are okay). Do not overmix.' },
+                    { step: 'Heat vegetable oil in a deep pot to 170°C (340°F).' },
+                    { step: 'Dip each vegetable piece into the batter, letting excess drip off. Carefully place into the hot oil. Fry in batches until light golden and crispy. Drain on a wire rack.' },
+                    { step: 'Serve immediately with dipping sauce (e.g., soy sauce with grated ginger).' }
+                ]
+            },
+            {
+                id: 'tteokbokki',
+                name: 'Tteokbokki (Korean Spicy Rice Cakes)',
+                region: 'Asian',
+                country: 'Korea',
+                description: 'A popular Korean street food dish made from chewy cylindrical rice cakes, fish cakes, and boiled eggs in a sweet and spicy gochujang sauce.',
+                image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Tteokbokki',
+                miseEnPlace: [
+                    'Soak rice cakes (if hard).',
+                    'Slice fish cakes.',
+                    'Prepare sauce ingredients.',
+                ],
+                ingredients: [
+                    { name: 'Garaetteok (Cylindrical Rice Cakes)', quantity: '300g', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Rice+Cakes', substitute: null },
+                    { name: 'Fish Cakes', quantity: '150g', unit: 'sliced', visual: 'https://placehold.co/100x100/D3D3D3/000000?text=Fish+Cakes', substitute: 'Fish Balls' },
+                    { name: 'Boiled Eggs', quantity: '2', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Boiled+Eggs', substitute: null },
+                    { name: 'Gochujang (Korean Chilli Paste)', quantity: '3 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Gochujang', substitute: 'Sriracha + Sugar' },
+                    { name: 'Gochugaru (Korean Chilli Flakes)', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Gochugaru', substitute: 'Chilli flakes' },
+                    { name: 'Sugar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
+                    { name: 'Garlic', quantity: '2 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Dashi Stock', quantity: '2 cups', unit: '', visual: 'https://placehold.co/100x100/A9A9A9/000000?text=Dashi+Stock', substitute: 'Vegetable or Chicken Broth' },
+                    { name: 'Spring Onions', quantity: '2', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null }
+                ],
+                instructions: [
+                    { step: 'If rice cakes are hard, soak them in warm water for 10-20 minutes until softened. Drain.' },
+                    { step: 'In a pot, combine gochujang, gochugaru, sugar, minced garlic, and dashi stock. Bring to a simmer, stirring until sauce is smooth.' },
+                    { step: 'Add rice cakes and fish cakes. Simmer for 10-15 minutes, stirring occasionally, until rice cakes are tender and sauce has thickened.' },
+                    { step: 'Add boiled eggs and simmer for another 2-3 minutes to heat through. Garnish with chopped spring onions. Serve hot.' }
+                ]
+            },
+            {
+                id: 'dumplings-potstickers',
+                name: 'Pork & Cabbage Dumplings (Potstickers) (Chinese)',
+                region: 'Asian',
+                country: 'China',
+                description: 'Classic Chinese pan-fried dumplings with a savoury pork and cabbage filling, crispy on the bottom and tender on top.',
+                image: 'https://placehold.co/600x400/CD5C5C/FFFFFF?text=Dumplings',
+                miseEnPlace: [
+                    'Chop cabbage and spring onions.',
+                    'Prepare pork mince and seasonings.',
+                    'Have dumpling wrappers ready.',
+                ],
+                ingredients: [
+                    { name: 'Pork Mince', quantity: '300g', unit: '', visual: 'https://placehold.co/100x100/CD5C5C/FFFFFF?text=Pork+Mince', substitute: 'Chicken or Prawn Mince' },
+                    { name: 'Napa Cabbage', quantity: '200g', unit: 'finely chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Napa+Cabbage', substitute: 'Green Cabbage' },
+                    { name: 'Ginger', quantity: '1 tbsp', unit: 'grated', visual: 'https://placehold.co/100x100/F4A460/000000?text=Ginger', substitute: null },
+                    { name: 'Garlic', quantity: '2 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Soy Sauce', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Sesame Oil', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Sesame+Oil', substitute: null },
+                    { name: 'White Pepper', quantity: '1/2 tsp', unit: '', visual: 'https://placehold.co/100x100/D3D3D3/000000?text=White+Pepper', substitute: null },
+                    { name: 'Spring Onions', quantity: '3', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null },
+                    { name: 'Dumpling Wrappers', quantity: '30', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Wrappers', substitute: null },
+                    { name: 'Vegetable Oil', quantity: 'for frying', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Oil', substitute: null }
+                ],
+                instructions: [
+                    { step: 'In a large bowl, combine pork mince, chopped cabbage, grated ginger, minced garlic, soy sauce, sesame oil, white pepper, and chopped spring onions. Mix well until combined.' },
+                    { step: 'Place about 1 teaspoon of filling in the center of a dumpling wrapper. Moisten the edges with water. Fold the wrapper in half to form a half-moon, then crimp the edges to seal, creating pleats.' },
+                    { step: 'Heat vegetable oil in a non-stick pan over medium-high heat. Place dumplings in a single layer, flat side down, and fry for 2-3 minutes until bottoms are golden brown and crispy.' },
+                    { step: 'Add about 1/2 cup of water to the pan (enough to cover the bottom 1/4 of the dumplings). Immediately cover with a lid and steam for 5-7 minutes until water evaporates and dumplings are cooked through.' },
+                    { step: 'Remove lid and continue to cook for another minute or two to ensure bottoms are crispy. Serve hot with a dipping sauce (e.g., soy sauce, vinegar, chilli oil).' }
+                ]
+            },
+            {
+                id: 'gong-bao-ji-ding',
+                name: 'Gong Bao Ji Ding (Kung Pao Chicken - Simplified) (Chinese)',
+                region: 'Asian',
+                country: 'China',
+                description: 'A simplified version of the spicy and savoury Kung Pao Chicken, perfect for a quick weeknight meal.',
+                image: 'https://placehold.co/600x400/CD5C5C/FFFFFF?text=Gong+Bao+Chicken',
+                miseEnPlace: [
+                    'Dice chicken and marinate.',
+                    'Chop spring onions and bell peppers.',
+                    'Prepare sauce ingredients.',
+                ],
+                ingredients: [
+                    { name: 'Chicken Breast', quantity: '300g', unit: 'diced', visual: 'https://placehold.co/100x100/ADD8E6/000000?text=Chicken', substitute: 'Chicken Thigh' },
+                    { name: 'Peanuts', quantity: '50g', unit: 'roasted', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Peanuts', substitute: 'Cashews' },
+                    { name: 'Bell Pepper', quantity: '1/2', unit: 'diced', visual: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Bell+Pepper', substitute: null },
+                    { name: 'Spring Onions', quantity: '2', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null },
+                    { name: 'Soy Sauce', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Rice Vinegar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/E0FFFF/000000?text=Rice+Vinegar', substitute: 'White Vinegar' },
+                    { name: 'Sugar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
+                    { name: 'Cornstarch', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F5F5DC/000000?text=Cornstarch', substitute: null },
+                    { name: 'Chilli Flakes', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Chilli+Flakes', substitute: null },
+                    { name: 'Garlic', quantity: '2 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Ginger', quantity: '1 inch', unit: 'grated', visual: 'https://placehold.co/100x100/F4A460/000000?text=Ginger', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Marinate diced chicken with 1 tbsp soy sauce and 1 tsp cornstarch for 15 minutes.' },
+                    { step: 'Prepare sauce by mixing remaining soy sauce, rice vinegar, sugar, and 1 tbsp cornstarch with 2 tbsp water and chilli flakes.' },
+                    { step: 'Heat oil in a wok. Add marinated chicken and stir-fry until cooked through. Remove chicken.' },
+                    { step: 'Add garlic, ginger, and spring onion whites to the wok and stir-fry briefly. Add bell pepper.' },
+                    { step: 'Return chicken to the wok. Pour in the sauce mixture and stir until thickened. Add peanuts and spring onion greens. Serve immediately with rice.' }
+                ]
+            },
+            {
+                id: 'hot-and-sour-soup',
+                name: 'Hot and Sour Soup (Chinese)',
+                region: 'Asian',
+                country: 'China',
+                description: 'A classic Chinese soup with a spicy and tangy broth, typically containing shredded pork, tofu, mushrooms, and bamboo shoots.',
+                image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Hot+Sour+Soup',
+                miseEnPlace: [
+                    'Shred pork and rehydrate mushrooms.',
+                    'Slice tofu and bamboo shoots.',
+                    'Prepare eggs.',
+                ],
+                ingredients: [
+                    { name: 'Pork Loin', quantity: '100g', unit: 'shredded', visual: 'https://placehold.co/100x100/CD5C5C/FFFFFF?text=Pork+Loin', substitute: 'Chicken Breast or Mushrooms' },
+                    { name: 'Dried Shiitake Mushrooms', quantity: '4', unit: 'rehydrated and sliced', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Mushrooms', substitute: 'Fresh Shiitake' },
+                    { name: 'Firm Tofu', quantity: '100g', unit: 'shredded', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Tofu', substitute: null },
+                    { name: 'Bamboo Shoots', quantity: '100g', unit: 'shredded', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Bamboo+Shoots', substitute: null },
+                    { name: 'Chicken Broth', quantity: '4 cups', unit: '', visual: 'https://placehold.co/100x100/A9A9A9/000000?text=Chicken+Broth', substitute: 'Vegetable Broth' },
+                    { name: 'Rice Vinegar', quantity: '3 tbsp', unit: '', visual: 'https://placehold.co/100x100/E0FFFF/000000?text=Rice+Vinegar', substitute: 'White Vinegar' },
+                    { name: 'Soy Sauce', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'White Pepper', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/D3D3D3/000000?text=White+Pepper', substitute: null },
+                    { name: 'Chilli Oil', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Chilli+Oil', substitute: null },
+                    { name: 'Cornstarch Slurry', quantity: '2 tbsp', unit: '(2 tbsp cornstarch + 4 tbsp water)', visual: 'https://placehold.co/100x100/F5F5DC/000000?text=Cornstarch', substitute: null },
+                    { name: 'Egg', quantity: '1', unit: 'beaten', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Egg', substitute: null },
+                    { name: 'Spring Onions', quantity: '2', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null }
+                ],
+                instructions: [
+                    { step: 'In a pot, bring chicken broth to a boil. Add shredded pork (or other protein), rehydrated mushrooms, shredded tofu, and bamboo shoots. Simmer for 5 minutes.' },
+                    { step: 'Stir in rice vinegar, soy sauce, white pepper, and chilli oil. Taste and adjust for desired sourness and spice.' },
+                    { step: 'Slowly pour in cornstarch slurry while stirring constantly until soup thickens to desired consistency.' },
+                    { step: 'Slowly drizzle in beaten egg while stirring gently to create egg ribbons. Remove from heat immediately. Garnish with chopped spring onions. Serve hot.' }
+                ]
+            },
+            {
+                id: 'kimchi-fried-rice',
+                name: 'Kimchi Fried Rice (Kimchi Bokkeumbap) (Korean)',
+                region: 'Asian',
+                country: 'Korea',
+                description: 'A popular Korean fried rice dish made with kimchi, rice, and often topped with a fried egg.',
+                image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Kimchi+Fried+Rice',
+                miseEnPlace: [
+                    'Chop kimchi and onion.',
+                    'Prepare rice (day-old is best).',
+                    'Slice pork belly (if using).',
+                ],
+                ingredients: [
+                    { name: 'Cooked Rice', quantity: '2 cups', unit: 'day-old', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Rice', substitute: null },
+                    { name: 'Kimchi', quantity: '1 cup', unit: 'chopped', visual: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Kimchi', substitute: null },
+                    { name: 'Pork Belly', quantity: '100g', unit: 'diced (optional)', visual: 'https://placehold.co/100x100/CD5C5C/FFFFFF?text=Pork+Belly', substitute: 'Tuna or Mushrooms' },
+                    { name: 'Egg', quantity: '1', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Egg', substitute: null },
+                    { name: 'Gochujang (Korean Chilli Paste)', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Gochujang', substitute: 'Sriracha' },
+                    { name: 'Soy Sauce', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Sesame Oil', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Sesame+Oil', substitute: null },
+                    { name: 'Spring Onions', quantity: '2', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null },
+                    { name: 'Onion', quantity: '1/2', unit: 'diced', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Onion', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Heat oil in a pan. Fry an egg sunny side up and set aside.' },
+                    { step: 'In the same pan, sauté diced pork belly (if using) until crispy. Remove excess fat.' },
+                    { step: 'Add diced onion and cook until softened. Add chopped kimchi and cook for 3-5 minutes.' },
+                    { step: 'Add day-old rice, gochujang, and soy sauce. Stir-fry vigorously until everything is well combined and rice is heated through. Drizzle with sesame oil.' },
+                    { step: 'Serve hot, topped with the fried egg and chopped spring onions.' }
+                ]
+            },
+            {
+                id: 'okonomiyaki',
+                name: 'Okonomiyaki (Japanese Savoury Pancake)',
+                region: 'Asian',
+                country: 'Japan',
+                description: 'A savoury Japanese pancake made with flour, eggs, and shredded cabbage, often filled with various ingredients and topped with special sauces.',
+                image: 'https://placehold.co/600x400/8B0000/FFFFFF?text=Okonomiyaki',
+                miseEnPlace: [
+                    'Shred cabbage.',
+                    'Prepare batter ingredients.',
+                    'Chop toppings.',
+                ],
+                ingredients: [
+                    { name: 'Plain Flour', quantity: '1 cup', unit: '', visual: 'https://placehold.co/100x100/F5F5DC/000000?text=Flour', substitute: null },
+                    { name: 'Eggs', quantity: '2', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Eggs', substitute: null },
+                    { name: 'Water or Dashi Stock', quantity: '1 cup', unit: '', visual: 'https://placehold.co/100x100/A9A9A9/000000?text=Water/Dashi', substitute: null },
+                    { name: 'Shredded Cabbage', quantity: '3 cups', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Cabbage', substitute: null },
+                    { name: 'Pork Belly', quantity: '100g', unit: 'thinly sliced', visual: 'https://placehold.co/100x100/CD5C5C/FFFFFF?text=Pork+Belly', substitute: 'Prawns or Bacon' },
+                    { name: 'Okonomiyaki Sauce', quantity: 'to taste', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Okonomiyaki+Sauce', substitute: 'Worcestershire Sauce + Ketchup + Oyster Sauce' },
+                    { name: 'Mayonnaise', quantity: 'to taste', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Mayonnaise', substitute: null },
+                    { name: 'Bonito Flakes (Katsuobushi)', quantity: 'to garnish', unit: '', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Bonito+Flakes', substitute: null },
+                    { name: 'Aonori (Dried Seaweed Flakes)', quantity: 'to garnish', unit: '', visual: 'https://placehold.co/100x100/36454F/FFFFFF?text=Aonori', substitute: null }
+                ],
+                instructions: [
+                    { step: 'In a large bowl, whisk together flour, eggs, and water (or dashi) to form a smooth batter. Stir in shredded cabbage.' },
+                    { step: 'Heat oil in a large frying pan or griddle over medium heat. Pour a portion of the batter to form a round pancake. Arrange thin slices of pork belly on top.' },
+                    { step: 'Cook for 5-7 minutes until the bottom is golden brown and crispy. Flip the pancake and cook for another 5-7 minutes until pork is cooked and pancake is cooked through.' },
+                    { step: 'Transfer to a plate. Drizzle generously with okonomiyaki sauce and mayonnaise. Garnish with bonito flakes and aonori. Serve hot.' }
+                ]
+            },
+            {
+                id: 'thai-green-curry',
+                name: 'Thai Green Curry (Thai)',
+                region: 'Asian',
+                country: 'Thailand',
+                description: 'A vibrant and aromatic Thai curry with a spicy, creamy coconut milk base, often with chicken or vegetables.',
+                image: 'https://placehold.co/600x400/90EE90/000000?text=Green+Curry',
+                miseEnPlace: [
+                    'Chop chicken and vegetables.',
+                    'Prepare green curry paste.',
+                    'Measure coconut milk.',
+                ],
+                ingredients: [
+                    { name: 'Green Curry Paste', quantity: '3 tbsp', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Green+Curry+Paste', substitute: 'Red Curry Paste + extra green chillies' },
+                    { name: 'Coconut Milk', quantity: '400ml', unit: '', visual: 'https://placehold.co/100x100/A2D2FF/000000?text=Coconut+Milk', substitute: null },
+                    { name: 'Chicken Breast', quantity: '300g', unit: 'sliced', visual: 'https://placehold.co/100x100/ADD8E6/000000?text=Chicken', substitute: 'Tofu or Prawns' },
+                    { name: 'Bamboo Shoots', quantity: '100g', unit: 'sliced', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Bamboo+Shoots', substitute: null },
+                    { name: 'Thai Basil Leaves', quantity: '1 cup', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Thai+Basil', substitute: 'Sweet Basil (less anise flavour)' },
+                    { name: 'Fish Sauce', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Fish+Sauce', substitute: 'Soy Sauce' },
+                    { name: 'Palm Sugar', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Palm+Sugar', substitute: 'Brown Sugar' },
+                    { name: 'Red Chillies', quantity: '1-2', unit: 'sliced (for garnish)', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Red+Chillies', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Heat a little oil in a pot. Add green curry paste and stir-fry until fragrant (about 1 minute).' },
+                    { step: 'Add chicken and cook until lightly browned. Pour in coconut milk and bring to a gentle simmer.' },
+                    { step: 'Add bamboo shoots and simmer for 5-7 minutes until chicken is cooked through.' },
+                    { step: 'Stir in fish sauce and palm sugar. Taste and adjust seasoning. Stir in Thai basil leaves just before serving.' },
+                    { step: 'Serve hot with steamed jasmine rice, garnished with sliced red chillies.' }
+                ]
+            },
+            {
+                id: 'gochujang-pork',
+                name: 'Spicy Gochujang Pork (Jeyuk Bokkeum) (Korean)',
+                region: 'Asian',
+                country: 'Korea',
+                description: 'A spicy and savoury Korean stir-fried pork dish, marinated in a delicious gochujang-based sauce.',
+                image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Gochujang+Pork',
+                miseEnPlace: [
+                    'Slice pork thinly.',
+                    'Chop vegetables.',
+                    'Mix marinade ingredients.',
+                ],
+                ingredients: [
+                    { name: 'Pork Shoulder', quantity: '400g', unit: 'thinly sliced', visual: 'https://placehold.co/100x100/CD5C5C/FFFFFF?text=Pork+Shoulder', substitute: 'Pork Loin or Chicken Thigh' },
+                    { name: 'Gochujang (Korean Chilli Paste)', quantity: '3 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Gochujang', substitute: 'Sriracha + Miso Paste' },
+                    { name: 'Gochugaru (Korean Chilli Flakes)', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Gochugaru', substitute: 'Chilli flakes' },
+                    { name: 'Soy Sauce', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Sugar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
+                    { name: 'Sesame Oil', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Sesame+Oil', substitute: null },
+                    { name: 'Garlic', quantity: '3 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Ginger', quantity: '1 inch', unit: 'grated', visual: 'https://placehold.co/100x100/F4A460/000000?text=Ginger', substitute: null },
+                    { name: 'Onion', quantity: '1/2', unit: 'sliced', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Onion', substitute: null },
+                    { name: 'Capsicum', quantity: '1/2', unit: 'sliced', visual: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Capsicum', substitute: null },
+                    { name: 'Spring Onions', quantity: '2', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null }
+                ],
+                instructions: [
+                    { step: 'In a bowl, combine gochujang, gochugaru, soy sauce, sugar, sesame oil, minced garlic, and grated ginger to make the marinade. Add thinly sliced pork and mix well. Marinate for at least 30 minutes (or overnight).' },
+                    { step: 'Heat a little oil in a wok or large frying pan over medium-high heat. Add marinated pork and stir-fry until cooked through.' },
+                    { step: 'Add sliced onion and capsicum. Continue to stir-fry for 3-5 minutes until vegetables are tender-crisp.' },
+                    { step: 'Stir in chopped spring onions. Serve hot with steamed rice.' }
+                ]
+            },
+            {
+                id: 'char-kway-teow',
+                name: 'Char Kway Teow (Malaysian/Singaporean)',
+                region: 'Asian',
+                country: 'Malaysia',
+                description: 'A popular Southeast Asian noodle dish made with flat rice noodles, prawns, eggs, bean sprouts, and Chinese sausage, stir-fried in a rich dark soy sauce.',
+                image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Char+Kway+Teow',
+                miseEnPlace: [
+                    'Soak noodles (if dried).',
+                    'Slice Chinese sausage.',
+                    'Prepare prawns and bean sprouts.',
+                    'Mix sauce ingredients.',
+                ],
+                ingredients: [
+                    { name: 'Flat Rice Noodles', quantity: '300g', unit: 'fresh', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Rice+Noodles', substitute: 'Dried Rice Noodles (soak first)' },
+                    { name: 'Prawns', quantity: '150g', unit: 'peeled', visual: 'https://placehold.co/100x100/FFC0CB/000000?text=Prawns', substitute: 'Chicken or Tofu' },
+                    { name: 'Chinese Sausage (Lap Cheong)', quantity: '1-2', unit: 'sliced', visual: 'https://placehold.co/100x100/CD5C5C/FFFFFF?text=Chinese+Sausage', substitute: 'Bacon or Chorizo' },
+                    { name: 'Eggs', quantity: '2', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Eggs', substitute: null },
+                    { name: 'Bean Sprouts', quantity: '1 cup', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Bean+Sprouts', substitute: null },
+                    { name: 'Chives', quantity: '1/4 cup', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Chives', substitute: 'Spring Onion Greens' },
+                    { name: 'Dark Soy Sauce', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/36454F/FFFFFF?text=Dark+Soy+Sauce', substitute: 'Regular Soy Sauce + a pinch of sugar' },
+                    { name: 'Light Soy Sauce', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Light+Soy+Sauce', substitute: null },
+                    { name: 'Chilli Paste', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Chilli+Paste', substitute: 'Fresh Chilli (finely chopped)' },
+                    { name: 'Garlic', quantity: '2 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null }
+                ],
+                instructions: [
+                    { step: 'If using dried noodles, soak them according to package instructions. Mix dark soy sauce, light soy sauce, and chilli paste for the sauce.' },
+                    { step: 'Heat oil in a wok over high heat. Add Chinese sausage and cook until slightly crispy. Add prawns and minced garlic, stir-fry until prawns are almost cooked.' },
+                    { step: 'Push ingredients to one side. Add noodles to the empty side and stir-fry briefly. Pour in the sauce and toss to coat the noodles.' },
+                    { step: 'Create a well in the center. Crack eggs into the well and scramble quickly. Mix everything together. Add bean sprouts and chives, stir-fry for 1-2 minutes until heated through.' },
+                    { step: 'Serve immediately.' }
+                ]
+            },
+            {
+                id: 'roti-prata',
+                name: 'Roti Prata with Curry (Singaporean)',
+                region: 'Asian',
+                country: 'Singapore',
+                description: 'A popular flatbread dish, crispy on the outside and soft on the inside, typically served with a side of curry.',
+                image: 'https://placehold.co/600x400/D2B48C/000000?text=Roti+Prata',
+                miseEnPlace: [
+                    'Prepare curry (or use store-bought).',
+                    'Have roti prata ready (frozen is common).',
+                ],
+                ingredients: [
+                    { name: 'Frozen Roti Prata', quantity: '4 pieces', unit: '', visual: 'https://placehold.co/100x100/D2B48C/000000?text=Roti+Prata', substitute: 'Frozen Paratha' },
+                    { name: 'Curry (Chicken or Vegetable)', quantity: '2 cups', unit: '', visual: 'https://placehold.co/100x100/FF6347/FFFFFF?000000?text=Curry', substitute: 'Dahl or Chutney' },
+                    { name: 'Oil', quantity: 'for frying', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Oil', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Heat a non-stick pan or griddle over medium heat. Add a small amount of oil.' },
+                    { step: 'Place a piece of frozen roti prata onto the hot pan. Cook for 2-3 minutes per side, or until golden brown and crispy, pressing gently with a spatula.' },
+                    { step: 'Once cooked, use both hands to gently "clap" the roti inwards from the edges to fluff it up and make it more airy.' },
+                    { step: 'Repeat for remaining roti prata. Serve hot with your favourite curry.' }
+                ]
+            },
+            {
+                id: 'ayam-goreng',
+                name: 'Ayam Goreng (Indonesian Fried Chicken)',
+                region: 'Asian',
+                country: 'Indonesia',
+                description: 'Indonesian-style fried chicken, marinated in a blend of spices and herbs, resulting in a flavourful and crispy exterior.',
+                image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Ayam+Goreng',
+                miseEnPlace: [
+                    'Cut chicken into pieces.',
+                    'Prepare spice paste.',
+                    'Heat oil for frying.',
+                ],
+                ingredients: [
+                    { name: 'Chicken Pieces', quantity: '500g', unit: '', visual: 'https://placehold.co/100x100/ADD8E6/000000?text=Chicken', substitute: 'Chicken Thighs or Drumsticks' },
+                    { name: 'Lemongrass', quantity: '1 stalk', unit: 'bruised', visual: 'https://placehold.co/100x100/90EE90/000000?text=Lemongrass', substitute: null },
+                    { name: 'Galangal', quantity: '1 inch', unit: 'sliced', visual: 'https://placehold.co/100x100/F4A460/000000?text=Galangal', substitute: 'Ginger' },
+                    { name: 'Turmeric', quantity: '1 tsp', unit: 'powder', visual: 'https://placehold.co/100x100/FFD700/000000?text=Turmeric', substitute: null },
+                    { name: 'Coriander Powder', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/D2B48C/000000?text=Coriander', substitute: null },
+                    { name: 'Cumin Powder', quantity: '1/2 tsp', unit: '', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Cumin', substitute: null },
+                    { name: 'Garlic', quantity: '4 cloves', unit: '', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Shallots', quantity: '3', unit: '', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Shallots', substitute: 'Red Onion' },
+                    { name: 'Coconut Water', quantity: '1 cup', unit: '', visual: 'https://placehold.co/100x100/A2D2FF/000000?text=Coconut+Water', substitute: 'Water' },
+                    { name: 'Vegetable Oil', quantity: 'for deep frying', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Oil', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Blend garlic, shallots, galangal, turmeric, coriander powder, and cumin powder into a smooth paste. Marinate chicken pieces with this paste and lemongrass for at least 1 hour (or overnight).' },
+                    { step: 'In a pot, combine marinated chicken and coconut water. Bring to a simmer and cook until chicken is tender and liquid has mostly evaporated (about 20-30 minutes).' },
+                    { step: 'Heat vegetable oil in a deep pot to 170°C (340°F). Fry chicken pieces in batches until golden brown and crispy. Drain on paper towels.' },
+                    { step: 'Serve hot with steamed rice and sambal.' }
+                ]
+            },
+            {
+                id: 'sinigang',
+                name: 'Sinigang (Filipino Sour Soup)',
+                region: 'Asian',
+                country: 'Philippines',
+                description: 'A sour and savoury Filipino soup, typically made with pork, tamarind, and various vegetables.',
+                image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Sinigang',
+                miseEnPlace: [
+                    'Cut pork into serving pieces.',
+                    'Prepare vegetables (okra, taro, radish, long beans).',
+                    'Extract tamarind pulp (or use powder).',
+                ],
+                ingredients: [
+                    { name: 'Pork Belly', quantity: '500g', unit: 'cubed', visual: 'https://placehold.co/100x100/CD5C5C/FFFFFF?text=Pork+Belly', substitute: 'Pork Ribs or Beef' },
+                    { name: 'Tamarind Soup Base Mix', quantity: '1 packet', unit: '', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Tamarind+Mix', substitute: 'Fresh Tamarind Pulp' },
+                    { name: 'Tomato', quantity: '1', unit: 'quartered', visual: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Tomato', substitute: null },
+                    { name: 'Onion', quantity: '1', unit: 'quartered', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Onion', substitute: null },
+                    { name: 'Green Chilli (Siling Haba)', quantity: '1-2', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Green+Chilli', substitute: 'Jalapeño' },
+                    { name: 'Radish', quantity: '1/2 cup', unit: 'sliced', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Radish', substitute: null },
+                    { name: 'Okra', quantity: '6-8', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Okra', substitute: null },
+                    { name: 'Long Beans', quantity: '1 cup', unit: 'cut', visual: 'https://placehold.co/100x100/90EE90/000000?text=Long+Beans', substitute: 'Green Beans' },
+                    { name: 'Kangkong (Water Spinach)', quantity: '1 bunch', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Kangkong', substitute: 'Spinach' },
+                    { name: 'Fish Sauce', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Fish+Sauce', substitute: 'Soy Sauce' }
+                ],
+                instructions: [
+                    { step: 'In a pot, boil pork belly with water, onion, and tomato until pork is tender (about 45-60 minutes). Skim off any scum.' },
+                    { step: 'Add tamarind soup base mix (or fresh tamarind pulp) and green chilli. Simmer for 10 minutes.' },
+                    { step: 'Add radish, okra, and long beans. Cook for 5-7 minutes until vegetables are tender-crisp. Stir in fish sauce to taste.' },
+                    { step: 'Finally, add kangkong (or spinach) and cook for just 1-2 minutes until wilted. Serve hot with steamed rice.' }
+                ]
+            },
+            {
+                id: 'taiwanese-fried-chicken',
+                name: 'Taiwanese Fried Chicken (Taiwanese)',
+                region: 'Asian',
+                country: 'Taiwan',
+                description: 'Crispy and flavourful Taiwanese fried chicken, often seasoned with five-spice powder and served as a snack or street food.',
+                image: 'https://placehold.co/600x400/CD5C5C/FFFFFF?text=Taiwanese+Fried+Chicken',
+                miseEnPlace: [
+                    'Cut chicken into bite-sized pieces.',
+                    'Prepare marinade and coating.',
+                    'Heat oil for frying.',
+                ],
+                ingredients: [
+                    { name: 'Chicken Thighs', quantity: '500g', unit: 'boneless, skin-on, cut into pieces', visual: 'https://placehold.co/100x100/ADD8E6/000000?text=Chicken', substitute: 'Chicken Breast (less juicy)' },
+                    { name: 'Soy Sauce', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Rice Wine', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Rice+Wine', substitute: 'Dry Sherry' },
+                    { name: 'Five-Spice Powder', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Five-Spice', substitute: null },
+                    { name: 'White Pepper', quantity: '1/2 tsp', unit: '', visual: 'https://placehold.co/100x100/D3D3D3/000000?text=White+Pepper', substitute: null },
+                    { name: 'Garlic', quantity: '2 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Sweet Potato Flour (or Tapioca Starch)', quantity: '1 cup', unit: '', visual: 'https://placehold.co/100x100/F5F5DC/000000?text=Sweet+Potato+Flour', substitute: 'Cornstarch (less crispy)' },
+                    { name: 'Vegetable Oil', quantity: 'for deep frying', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Oil', substitute: null },
+                    { name: 'Basil Leaves', quantity: '1 cup', unit: 'fresh (for frying)', visual: 'https://placehold.co/100x100/90EE90/000000?text=Basil', substitute: null }
+                ],
+                instructions: [
+                    { step: 'In a bowl, combine chicken pieces with soy sauce, rice wine, five-spice powder, white pepper, and minced garlic. Marinate for at least 30 minutes (or overnight).' },
+                    { step: 'Dredge each marinated chicken piece thoroughly in sweet potato flour, ensuring it\'s fully coated. Shake off excess.' },
+                    { step: 'Heat vegetable oil in a deep pot to 170°C (340°F). Fry chicken in batches for 5-7 minutes until golden brown and cooked through. Remove and drain on a wire rack.' },
+                    { step: 'Increase oil temperature to 190°C (375°F). Fry the chicken again for 1-2 minutes until extra crispy. In the last 30 seconds, add fresh basil leaves to the oil and fry until crispy. Remove chicken and basil, drain.' },
+                    { step: 'Season fried chicken and basil with a sprinkle of five-spice powder and white pepper. Serve hot.' }
+                ]
+            },
+            {
+                id: 'khao-pad',
+                name: 'Khao Pad (Thai Fried Rice) (Thai)',
+                region: 'Asian',
+                country: 'Thailand',
+                description: 'A simple yet flavourful Thai fried rice dish, often made with chicken, prawns, or a combination, and seasoned with fish sauce and soy sauce.',
+                image: 'https://placehold.co/600x400/FFD700/000000?text=Khao+Pad',
+                miseEnPlace: [
+                    'Cook rice (day-old is best).',
+                    'Chop chicken/prawns and vegetables.',
+                    'Prepare eggs.',
+                ],
+                ingredients: [
+                    { name: 'Cooked Rice', quantity: '3 cups', unit: 'day-old', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Rice', substitute: null },
+                    { name: 'Chicken Breast', quantity: '150g', unit: 'diced', visual: 'https://placehold.co/100x100/ADD8E6/000000?text=Chicken', substitute: 'Prawns or Tofu' },
+                    { name: 'Eggs', quantity: '2', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Eggs', substitute: null },
+                    { name: 'Garlic', quantity: '2 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Onion', quantity: '1/2', unit: 'diced', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Onion', substitute: null },
+                    { name: 'Carrots', quantity: '1/2 cup', unit: 'diced', visual: 'https://placehold.co/100x100/F4A460/000000?text=Carrots', substitute: null },
+                    { name: 'Peas', quantity: '1/2 cup', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Peas', substitute: null },
+                    { name: 'Fish Sauce', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Fish+Sauce', substitute: 'Soy Sauce' },
+                    { name: 'Soy Sauce', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Sugar', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
+                    { name: 'Lime', quantity: '1', unit: 'wedges for serving', visual: 'https://placehold.co/100x100/ADFF2F/000000?text=Lime', substitute: null },
+                    { name: 'Coriander', quantity: 'to garnish', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Coriander', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Heat oil in a wok or large frying pan. Add chicken (or prawns) and cook until browned. Push to one side.' },
+                    { step: 'Add garlic and onion to the empty side and sauté until fragrant. Add carrots and peas, stir-fry for 2-3 minutes.' },
+                    { step: 'Push ingredients to one side. Crack eggs into the empty side and scramble. Mix with other ingredients.' },
+                    { step: 'Add day-old rice, fish sauce, soy sauce, and sugar. Stir-fry vigorously until everything is well combined and rice is heated through and slightly crispy.' },
+                    { step: 'Serve hot, garnished with fresh coriander and lime wedges.' }
+                ]
+            },
+            {
+                id: 'bulgogi',
+                name: 'Bulgogi (Korean Grilled Marinated Beef) (Korean)',
+                region: 'Asian',
+                country: 'Korea',
+                description: 'Thinly sliced beef marinated in a sweet and savoury sauce, typically grilled or stir-fried.',
+                image: 'https://placehold.co/600x400/A0522D/FFFFFF?text=Bulgogi',
+                miseEnPlace: [
+                    'Slice beef thinly (partially freeze for easier slicing).',
+                    'Grate apple/pear.',
+                    'Chop spring onions and garlic.',
+                ],
+                ingredients: [
+                    { name: 'Beef Sirloin or Ribeye', quantity: '500g', unit: 'thinly sliced', visual: 'https://placehold.co/100x100/A0522D/FFFFFF?text=Beef+Sirloin', substitute: 'Beef Chuck (slice very thin)' },
+                    { name: 'Soy Sauce', quantity: '1/2 cup', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Sugar', quantity: '3 tbsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
+                    { name: 'Sesame Oil', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Sesame+Oil', substitute: null },
+                    { name: 'Garlic', quantity: '4 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Ginger', quantity: '1 tbsp', unit: 'grated', visual: 'https://placehold.co/100x100/F4A460/000000?text=Ginger', substitute: null },
+                    { name: 'Spring Onions', quantity: '3', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null },
+                    { name: 'Asian Pear or Apple', quantity: '1/4', unit: 'grated', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Asian+Pear', substitute: null },
+                    { name: 'Black Pepper', quantity: '1/2 tsp', unit: '', visual: 'https://placehold.co/100x100/D3D3D3/000000?text=Black+Pepper', substitute: null }
+                ],
+                instructions: [
+                    { step: 'In a large bowl, combine soy sauce, sugar, sesame oil, minced garlic, grated ginger, chopped spring onions, grated Asian pear (or apple), and black pepper to make the marinade. Mix well.' },
+                    { step: 'Add thinly sliced beef to the marinade and mix thoroughly, ensuring all beef is coated. Marinate for at least 30 minutes (or overnight for best flavour).' },
+                    { step: 'Heat a lightly oiled pan or grill over medium-high heat. Cook marinated beef in batches, stir-frying or grilling until cooked through and slightly caramelised. Do not overcrowd the pan.' },
+                    { step: 'Serve hot with steamed rice and lettuce wraps.' }
+                ]
+            },
+            {
+                id: 'dan-dan-noodles',
+                name: 'Dan Dan Noodles (Chinese)',
+                region: 'Asian',
+                country: 'China',
+                description: 'A classic Sichuan noodle dish featuring a spicy, savoury sauce, minced pork, and often preserved vegetables, served over noodles.',
+                image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Dan+Dan+Noodles',
+                miseEnPlace: [
+                    'Prepare minced pork.',
+                    'Chop preserved vegetables.',
+                    'Mix sauce ingredients.',
+                    'Cook noodles.',
+                ],
+                ingredients: [
+                    { name: 'Chinese Noodles', quantity: '2 servings', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Noodles', substitute: 'Spaghetti or Ramen Noodles' },
+                    { name: 'Minced Pork', quantity: '150g', unit: '', visual: 'https://placehold.co/100x100/CD5C5C/FFFFFF?text=Minced+Pork', substitute: 'Minced Chicken or Tofu' },
+                    { name: 'Sichuan Preserved Vegetable (Ya Cai)', quantity: '2 tbsp', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Preserved+Vegetable', substitute: 'Salted Radish or omit' },
+                    { name: 'Chilli Oil', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Chilli+Oil', substitute: null },
+                    { name: 'Sichuan Peppercorn Oil', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Sichuan+Oil', substitute: 'Sichuan Peppercorns (toasted & crushed)' },
+                    { name: 'Soy Sauce', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Chinese Black Vinegar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/36454F/FFFFFF?text=Black+Vinegar', substitute: 'Balsamic Vinegar (different flavour)' },
+                    { name: 'Sesame Paste (Tahini)', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Sesame+Paste', substitute: 'Peanut Butter (less authentic)' },
+                    { name: 'Garlic', quantity: '2 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Spring Onions', quantity: '2', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null }
+                ],
+                instructions: [
+                    { step: 'In a bowl, combine chilli oil, Sichuan peppercorn oil, soy sauce, black vinegar, sesame paste, and minced garlic to make the sauce. Set aside.' },
+                    { step: 'Heat a little oil in a pan. Add minced pork and cook until browned and crispy. Add chopped preserved vegetables and stir-fry for 1-2 minutes.' },
+                    { step: 'Cook noodles according to package instructions. Drain well.' },
+                    { step: 'Pour the sauce into serving bowls. Add cooked noodles and toss to coat. Top with minced pork mixture and chopped spring onions. Serve immediately.' }
+                ]
+            },
+            {
+                id: 'sushi-sashimi',
+                name: 'Sashimi Platter (Japanese)',
+                region: 'Asian',
+                country: 'Japan',
+                description: 'Thinly sliced raw fish or seafood, served without rice, showcasing the fresh quality of the ingredients.',
+                image: 'https://placehold.co/600x400/8B0000/FFFFFF?text=Sashimi+Platter',
+                miseEnPlace: [
+                    'Ensure fish is sushi-grade and very fresh.',
+                    'Slice fish thinly and artfully.',
+                    'Prepare garnishes.',
+                ],
+                ingredients: [
+                    { name: 'Sushi-Grade Salmon', quantity: '150g', unit: 'fillet', visual: 'https://placehold.co/100x100/FF7F50/000000?text=Salmon', substitute: null },
+                    { name: 'Sushi-Grade Tuna', quantity: '150g', unit: 'fillet', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Tuna', substitute: null },
+                    { name: 'Wasabi', quantity: 'to taste', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Wasabi', substitute: null },
+                    { name: 'Soy Sauce', quantity: 'to serve', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Pickled Ginger', quantity: 'to serve', unit: '', visual: 'https://placehold.co/100x100/FFC0CB/000000?text=Pickled+Ginger', substitute: null },
+                    { name: 'Daikon Radish', quantity: 'for garnish', unit: 'shredded', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Daikon', substitute: null },
+                    { name: 'Shiso Leaves', quantity: 'for garnish', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Shiso+Leaves', substitute: 'Mint Leaves' }
+                ],
+                instructions: [
+                    { step: 'Ensure your fish is extremely fresh and sushi-grade. Use a very sharp knife to slice the fish thinly against the grain, at an angle, into uniform pieces.' },
+                    { step: 'Arrange the sliced fish artfully on a chilled platter. Garnish with shredded daikon radish and shiso leaves.' },
+                    { step: 'Serve immediately with small dishes of soy sauce, wasabi, and pickled ginger on the side.' }
+                ]
+            },
+            {
+                id: 'thai-red-curry',
+                name: 'Thai Red Curry (Thai)',
+                region: 'Asian',
+                country: 'Thailand',
+                description: 'A popular and versatile Thai curry with a rich, spicy, and creamy coconut milk base, often with chicken or beef.',
+                image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Red+Curry',
+                miseEnPlace: [
+                    'Chop chicken/beef and vegetables.',
+                    'Prepare red curry paste.',
+                    'Measure coconut milk.',
+                ],
+                ingredients: [
+                    { name: 'Red Curry Paste', quantity: '3 tbsp', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Red+Curry+Paste', substitute: 'Massaman Curry Paste (less spicy)' },
+                    { name: 'Coconut Milk', quantity: '400ml', unit: '', visual: 'https://placehold.co/100x100/A2D2FF/000000?text=Coconut+Milk', substitute: null },
+                    { name: 'Chicken Breast', quantity: '300g', unit: 'sliced', visual: 'https://placehold.co/100x100/ADD8E6/000000?text=Chicken', substitute: 'Beef or Tofu' },
+                    { name: 'Bell Peppers', quantity: '1', unit: 'sliced', visual: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Bell+Peppers', substitute: null },
+                    { name: 'Green Beans', quantity: '1 cup', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Green+Beans', substitute: null },
+                    { name: 'Fish Sauce', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Fish+Sauce', substitute: 'Soy Sauce' },
+                    { name: 'Palm Sugar', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Palm+Sugar', substitute: 'Brown Sugar' },
+                    { name: 'Thai Basil Leaves', quantity: '1/2 cup', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Thai+Basil', substitute: 'Sweet Basil' }
+                ],
+                instructions: [
+                    { step: 'Heat a little oil in a pot. Add red curry paste and stir-fry until fragrant (about 1 minute).' },
+                    { step: 'Add chicken (or beef) and cook until lightly browned. Pour in coconut milk and bring to a gentle simmer.' },
+                    { step: 'Add bell peppers and green beans. Simmer for 5-7 minutes until chicken is cooked through and vegetables are tender-crisp.' },
+                    { step: 'Stir in fish sauce and palm sugar. Taste and adjust seasoning. Stir in Thai basil leaves just before serving.' },
+                    { step: 'Serve hot with steamed jasmine rice.' }
+                ]
+            },
+            {
+                id: 'bibim-naengmyeon',
+                name: 'Bibim Naengmyeon (Korean Spicy Cold Noodles) (Korean)',
+                region: 'Asian',
+                country: 'Korea',
+                description: 'A refreshing and spicy Korean cold noodle dish, perfect for hot weather, with a sweet, tangy, and spicy gochujang sauce.',
+                image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Bibim+Naengmyeon',
+                miseEnPlace: [
+                    'Cook noodles and cool.',
+                    'Prepare cucumber and radish.',
+                    'Mix sauce ingredients.',
+                ],
+                ingredients: [
+                    { name: 'Naengmyeon Noodles', quantity: '2 servings', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Naengmyeon+Noodles', substitute: 'Thin Spaghetti or Somen Noodles' },
+                    { name: 'Gochujang (Korean Chilli Paste)', quantity: '3 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Gochujang', substitute: 'Sriracha + Sugar' },
+                    { name: 'Gochugaru (Korean Chilli Flakes)', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Gochugaru', substitute: 'Chilli flakes' },
+                    { name: 'Rice Vinegar', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/E0FFFF/000000?text=Rice+Vinegar', substitute: 'White Vinegar' },
+                    { name: 'Sugar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
+                    { name: 'Sesame Oil', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Sesame+Oil', substitute: null },
+                    { name: 'Garlic', quantity: '2 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Cucumber', quantity: '1/2', unit: 'julienned', visual: 'https://placehold.co/100x100/90EE90/000000?text=Cucumber', substitute: null },
+                    { name: 'Korean Radish', quantity: '1/4 cup', unit: 'julienned (pickled)', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Korean+Radish', substitute: 'Regular Radish (thinly sliced)' },
+                    { name: 'Boiled Egg', quantity: '1', unit: 'halved', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Boiled+Egg', substitute: null },
+                    { name: 'Roasted Sesame Seeds', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Sesame+Seeds', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Cook naengmyeon noodles according to package instructions. Rinse thoroughly under cold water and drain well. Keep chilled.' },
+                    { step: 'In a bowl, combine gochujang, gochugaru, rice vinegar, sugar, sesame oil, and minced garlic to make the sauce. Mix well.' },
+                    { step: 'In a large bowl, combine the chilled noodles with the sauce. Add julienned cucumber and Korean radish. Toss everything together until well combined.' },
+                    { step: 'Divide into serving bowls. Top each bowl with a halved boiled egg and a sprinkle of roasted sesame seeds. Serve immediately.' }
+                ]
+            },
+            {
+                id: 'sweet-sour-pork',
+                name: 'Sweet and Sour Pork (Chinese)',
+                region: 'Asian',
+                country: 'China',
+                description: 'A classic Chinese dish featuring crispy fried pork pieces tossed in a vibrant sweet and sour sauce with bell peppers and pineapple.',
+                image: 'https://placehold.co/600x400/FF6347/FFFFFF?text=Sweet+Sour+Pork',
+                miseEnPlace: [
+                    'Cut pork into bite-sized pieces.',
+                    'Chop bell peppers and onion.',
+                    'Prepare pineapple chunks.',
+                    'Mix sweet and sour sauce.',
+                ],
+                ingredients: [
+                    { name: 'Pork Loin', quantity: '300g', unit: 'cubed', visual: 'https://placehold.co/100x100/CD5C5C/FFFFFF?text=Pork+Loin', substitute: 'Chicken Breast or Tofu' },
+                    { name: 'Plain Flour', quantity: '1/2 cup', unit: '', visual: 'https://placehold.co/100x100/F5F5DC/000000?text=Flour', substitute: null },
+                    { name: 'Cornstarch', quantity: '1/4 cup', unit: '', visual: 'https://placehold.co/100x100/F5F5DC/000000?text=Cornstarch', substitute: null },
+                    { name: 'Egg', quantity: '1', unit: 'beaten', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Egg', substitute: null },
+                    { name: 'Bell Peppers', quantity: '1', unit: 'diced', visual: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Bell+Peppers', substitute: null },
+                    { name: 'Onion', quantity: '1/2', unit: 'diced', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Onion', substitute: null },
+                    { name: 'Pineapple Chunks', quantity: '1 cup', unit: 'canned or fresh', visual: 'https://placehold.co/100x100/FFD700/000000?text=Pineapple', substitute: null },
+                    { name: 'Ketchup', quantity: '4 tbsp', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Ketchup', substitute: null },
+                    { name: 'White Vinegar', quantity: '3 tbsp', unit: '', visual: 'https://placehold.co/100x100/E0FFFF/000000?text=White+Vinegar', substitute: null },
+                    { name: 'Sugar', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
+                    { name: 'Soy Sauce', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Water', quantity: '1/2 cup', unit: '', visual: 'https://placehold.co/100x100/A2D2FF/000000?text=Water', substitute: null },
+                    { name: 'Vegetable Oil', quantity: 'for deep frying', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Oil', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Toss pork cubes with a pinch of salt and pepper. Dredge pork in flour, then dip in beaten egg, then coat in cornstarch. Ensure pieces are well coated.' },
+                    { step: 'Heat vegetable oil in a deep pot to 170°C (340°F). Fry pork in batches for 5-7 minutes until golden brown and cooked through. Drain on paper towels.' },
+                    { step: 'In a separate pan, combine ketchup, white vinegar, sugar, soy sauce, and water to make the sauce. Bring to a simmer.' },
+                    { step: 'Add diced bell peppers, onion, and pineapple chunks to the sauce. Simmer for 3-5 minutes until vegetables are tender-crisp.' },
+                    { step: 'Add fried pork to the sauce and toss to coat evenly. Serve hot with steamed rice.' }
+                ]
+            },
+            {
+                id: 'shabu-shabu',
+                name: 'Shabu-Shabu (Japanese Hot Pot) (Japanese)',
+                region: 'Asian',
+                country: 'Japan',
+                description: 'A Japanese hot pot dish where thinly sliced meat and vegetables are cooked briefly in a simmering broth at the table and dipped in sauces.',
+                image: 'https://placehold.co/600x400/8B0000/FFFFFF?text=Shabu-Shabu',
+                miseEnPlace: [
+                    'Prepare dashi broth.',
+                    'Slice beef very thinly.',
+                    'Chop vegetables and mushrooms.',
+                    'Prepare dipping sauces.',
+                ],
+                ingredients: [
+                    { name: 'Thinly Sliced Beef (for hot pot)', quantity: '500g', unit: '', visual: 'https://placehold.co/100x100/A0522D/FFFFFF?text=Beef', substitute: 'Pork or Chicken' },
+                    { name: 'Dashi Stock', quantity: '6 cups', unit: '', visual: 'https://placehold.co/100x100/A9A9A9/000000?text=Dashi+Stock', substitute: 'Light Chicken Broth' },
+                    { name: 'Napa Cabbage', quantity: '1/2 head', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Napa+Cabbage', substitute: null },
+                    { name: 'Shiitake Mushrooms', quantity: '8', unit: '', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Mushrooms', substitute: 'Button Mushrooms' },
+                    { name: 'Enoki Mushrooms', quantity: '1 packet', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Enoki+Mushrooms', substitute: null },
+                    { name: 'Tofu', quantity: '1 block', unit: 'cubed', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Tofu', substitute: null },
+                    { name: 'Udon Noodles', quantity: '200g', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Udon+Noodles', substitute: 'Ramen Noodles' },
+                    { name: 'Ponzu Sauce', quantity: 'to serve', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Ponzu+Sauce', substitute: 'Soy Sauce + Lemon Juice' },
+                    { name: 'Sesame Sauce (Goma Dare)', quantity: 'to serve', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Sesame+Sauce', substitute: 'Tahini + Soy Sauce + Sugar' }
+                ],
+                instructions: [
+                    { step: 'Prepare dashi stock in a large pot or hot pot cooker. Bring to a gentle simmer.' },
+                    { step: 'Arrange thinly sliced beef, napa cabbage, shiitake mushrooms, enoki mushrooms, and tofu on a large platter.' },
+                    { step: 'At the table, each person dips a slice of beef into the simmering broth for a few seconds until cooked. Then, dip the cooked beef into ponzu or sesame sauce.' },
+                    { step: 'Add vegetables and tofu to the broth and cook until tender. Enjoy with the dipping sauces. Towards the end, add udon noodles to cook in the flavourful broth.' }
+                ]
+            },
+            {
+                id: 'gong-bao-shrimp',
+                name: 'Gong Bao Shrimp (Chinese)',
+                region: 'Asian',
+                country: 'China',
+                description: 'A spicy and savoury stir-fry featuring succulent shrimp, peanuts, and vegetables in a classic Gong Bao sauce.',
+                image: 'https://placehold.co/600x400/CD5C5C/FFFFFF?text=Gong+Bao+Shrimp',
+                miseEnPlace: [
+                    'Peel and devein shrimp.',
+                    'Chop bell peppers and spring onions.',
+                    'Prepare sauce ingredients.',
+                ],
+                ingredients: [
+                    { name: 'Shrimp', quantity: '300g', unit: 'peeled and deveined', visual: 'https://placehold.co/100x100/FFC0CB/000000?text=Shrimp', substitute: 'Chicken or Tofu' },
+                    { name: 'Peanuts', quantity: '50g', unit: 'roasted', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Peanuts', substitute: 'Cashews' },
+                    { name: 'Bell Pepper', quantity: '1/2', unit: 'diced', visual: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Bell+Pepper', substitute: null },
+                    { name: 'Spring Onions', quantity: '2', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null },
+                    { name: 'Soy Sauce', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Rice Vinegar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/E0FFFF/000000?text=Rice+Vinegar', substitute: 'White Vinegar' },
+                    { name: 'Sugar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
+                    { name: 'Cornstarch', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F5F5DC/000000?text=Cornstarch', substitute: null },
+                    { name: 'Chilli Flakes', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Chilli+Flakes', substitute: null },
+                    { name: 'Garlic', quantity: '2 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Ginger', quantity: '1 inch', unit: 'grated', visual: 'https://placehold.co/100x100/F4A460/000000?text=Ginger', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Marinate shrimp with 1 tbsp soy sauce and 1 tsp cornstarch for 15 minutes.' },
+                    { step: 'Prepare sauce by mixing remaining soy sauce, rice vinegar, sugar, and 1 tbsp cornstarch with 2 tbsp water and chilli flakes.' },
+                    { step: 'Heat oil in a wok. Add marinated shrimp and stir-fry until cooked through. Remove shrimp.' },
+                    { step: 'Add garlic, ginger, and spring onion whites to the wok and stir-fry briefly. Add bell pepper.' },
+                    { step: 'Return shrimp to the wok. Pour in the sauce mixture and stir until thickened. Add peanuts and spring onion greens. Serve immediately with rice.' }
+                ]
+            },
+            {
+                id: 'thai-basil-chicken',
+                name: 'Thai Basil Chicken (Pad Krapow Gai) (Thai)',
+                region: 'Asian',
+                country: 'Thailand',
+                description: 'A quick and spicy Thai stir-fry with minced chicken, holy basil, and chillies, served over rice with a fried egg.',
+                image: 'https://placehold.co/600x400/FF6347/FFFFFF?text=Thai+Basil+Chicken',
+                miseEnPlace: [
+                    'Mince chicken.',
+                    'Chop garlic and chillies.',
+                    'Prepare holy basil leaves.',
+                ],
+                ingredients: [
+                    { name: 'Minced Chicken', quantity: '300g', unit: '', visual: 'https://placehold.co/100x100/ADD8E6/000000?text=Minced+Chicken', substitute: 'Minced Pork or Beef' },
+                    { name: 'Holy Basil Leaves', quantity: '1 cup', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Holy+Basil', substitute: 'Thai Basil or Sweet Basil' },
+                    { name: 'Garlic', quantity: '4 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Bird\'s Eye Chillies', quantity: '3-5', unit: 'sliced', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Chillies', substitute: 'Red Chillies (less spicy)' },
+                    { name: 'Fish Sauce', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Fish+Sauce', substitute: 'Soy Sauce' },
+                    { name: 'Soy Sauce', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Oyster Sauce', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Oyster+Sauce', substitute: 'Vegetarian Oyster Sauce' },
+                    { name: 'Sugar', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
+                    { name: 'Egg', quantity: '1', unit: 'for frying', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Egg', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Heat oil in a wok over high heat. Add minced garlic and sliced bird\'s eye chillies. Stir-fry until fragrant (about 30 seconds).' },
+                    { step: 'Add minced chicken and stir-fry, breaking it up, until cooked through and lightly browned.' },
+                    { step: 'Add fish sauce, soy sauce, oyster sauce, and sugar. Stir well to combine.' },
+                    { step: 'Stir in holy basil leaves and cook for 1-2 minutes until wilted. Remove from heat.' },
+                    { step: 'Fry an egg sunny side up. Serve the basil chicken over steamed rice, topped with the fried egg.' }
+                ]
+            },
+            {
+                id: 'japchae',
+                name: 'Japchae (Korean Glass Noodle Stir-fry) (Korean)',
+                region: 'Asian',
+                country: 'Korea',
+                description: 'A colourful and flavourful Korean dish of stir-fried glass noodles with various vegetables and meat.',
+                image: 'https://placehold.co/600x400/FFD700/000000?text=Japchae',
+                miseEnPlace: [
+                    'Soak glass noodles.',
+                    'Slice beef and vegetables.',
+                    'Prepare sauce ingredients.',
+                ],
+                ingredients: [
+                    { name: 'Sweet Potato Glass Noodles (Dangmyeon)', quantity: '200g', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Glass+Noodles', substitute: 'Vermicelli Noodles' },
+                    { name: 'Beef Sirloin', quantity: '100g', unit: 'thinly sliced', visual: 'https://placehold.co/100x100/A0522D/FFFFFF?text=Beef+Sirloin', substitute: 'Mushrooms or Tofu' },
+                    { name: 'Spinach', quantity: '1 cup', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spinach', substitute: null },
+                    { name: 'Carrots', quantity: '1', unit: 'julienned', visual: 'https://placehold.co/100x100/F4A460/000000?text=Carrots', substitute: null },
+                    { name: 'Onion', quantity: '1/2', unit: 'sliced', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Onion', substitute: null },
+                    { name: 'Shiitake Mushrooms', quantity: '4', unit: 'sliced', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Mushrooms', substitute: 'Button Mushrooms' },
+                    { name: 'Soy Sauce', quantity: '3 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Sugar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
+                    { name: 'Sesame Oil', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Sesame+Oil', substitute: null },
+                    { name: 'Garlic', quantity: '2 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Roasted Sesame Seeds', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Sesame+Seeds', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Soak glass noodles in warm water for 30 minutes until soft. Boil for 5-7 minutes until transparent and chewy. Drain, rinse with cold water, and cut into shorter lengths.' },
+                    { step: 'Sauté beef (if using) and each vegetable (spinach, carrots, onion, mushrooms) separately with a little oil and garlic. Season lightly.' },
+                    { step: 'In a large bowl, combine cooked noodles, sautéed beef and vegetables. Add soy sauce, sugar, sesame oil, and minced garlic. Toss everything together until well combined.' },
+                    { step: 'Serve warm or at room temperature, garnished with roasted sesame seeds.' }
+                ]
+            },
+            {
+                id: 'wonton-soup',
+                name: 'Wonton Soup (Chinese)',
+                region: 'Asian',
+                country: 'China',
+                description: 'A comforting Chinese soup with delicate wontons (dumplings) in a clear, savoury broth, often with leafy greens.',
+                image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Wonton+Soup',
+                miseEnPlace: [
+                    'Prepare wonton filling.',
+                    'Wrap wontons.',
+                    'Prepare broth and greens.',
+                ],
+                ingredients: [
+                    { name: 'Pork Mince', quantity: '200g', unit: '', visual: 'https://placehold.co/100x100/CD5C5C/FFFFFF?text=Pork+Mince', substitute: 'Chicken or Prawn Mince' },
+                    { name: 'Wonton Wrappers', quantity: '30', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Wrappers', substitute: null },
+                    { name: 'Prawns', quantity: '100g', unit: 'chopped (optional)', visual: 'https://placehold.co/100x100/FFC0CB/000000?text=Prawns', substitute: null },
+                    { name: 'Chinese Cabbage', quantity: '1 cup', unit: 'finely chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Cabbage', substitute: 'Napa Cabbage' },
+                    { name: 'Ginger', quantity: '1 tbsp', unit: 'grated', visual: 'https://placehold.co/100x100/F4A460/000000?text=Ginger', substitute: null },
+                    { name: 'Soy Sauce', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Sesame Oil', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Sesame+Oil', substitute: null },
+                    { name: 'Chicken Broth', quantity: '6 cups', unit: '', visual: 'https://placehold.co/100x100/A9A9A9/000000?text=Chicken+Broth', substitute: 'Vegetable Broth' },
+                    { name: 'Bok Choy', quantity: '200g', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Bok+Choy', substitute: 'Spinach' },
+                    { name: 'Spring Onions', quantity: '2', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null }
+                ],
+                instructions: [
+                    { step: 'For the filling, combine pork mince (and chopped prawns if using), Chinese cabbage, grated ginger, soy sauce, and sesame oil in a bowl. Mix well.' },
+                    { step: 'Place a teaspoon of filling in the center of a wonton wrapper. Moisten the edges with water. Fold into desired shape (e.g., triangle, purse). Press to seal tightly.' },
+                    { step: 'Bring chicken broth to a simmer in a pot. Add wontons and cook for 3-5 minutes until they float and are cooked through. Add bok choy and cook until wilted.' },
+                    { step: 'Ladle soup and wontons into bowls. Garnish with chopped spring onions. Serve hot.' }
+                ]
+            },
+            {
+                id: 'chicken-teriyaki',
+                name: 'Chicken Teriyaki (Japanese)',
+                region: 'Asian',
+                country: 'Japan',
+                description: 'Grilled or pan-fried chicken glazed with a sweet and savoury teriyaki sauce, a popular Japanese dish.',
+                image: 'https://placehold.co/600x400/8B0000/FFFFFF?text=Chicken+Teriyaki',
+                miseEnPlace: [
+                    'Cut chicken into pieces.',
+                    'Mix teriyaki sauce ingredients.',
+                    'Prepare vegetables (if serving with).',
+                ],
+                ingredients: [
+                    { name: 'Chicken Thighs', quantity: '500g', unit: 'boneless, skin-on', visual: 'https://placehold.co/100x100/ADD8E6/000000?text=Chicken', substitute: 'Chicken Breast' },
+                    { name: 'Soy Sauce', quantity: '1/2 cup', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'Mirin', quantity: '1/4 cup', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Mirin', substitute: 'Dry Sherry + Sugar' },
+                    { name: 'Sake', quantity: '1/4 cup', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Sake', substitute: 'Dry White Wine' },
+                    { name: 'Sugar', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
+                    { name: 'Ginger', quantity: '1 tbsp', unit: 'grated', visual: 'https://placehold.co/100x100/F4A460/000000?text=Ginger', substitute: null },
+                    { name: 'Garlic', quantity: '1 clove', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Sesame Seeds', quantity: 'to garnish', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Sesame+Seeds', substitute: null },
+                    { name: 'Spring Onions', quantity: 'to garnish', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null }
+                ],
+                instructions: [
+                    { step: 'In a bowl, combine soy sauce, mirin, sake, sugar, grated ginger, and minced garlic to make the teriyaki sauce. Mix well.' },
+                    { step: 'Heat a little oil in a pan over medium-high heat. Place chicken thighs skin-side down and cook until skin is crispy and golden brown. Flip and cook other side until almost cooked through.' },
+                    { step: 'Pour the teriyaki sauce over the chicken. Bring to a simmer and cook, spooning sauce over chicken, until sauce thickens and glazes the chicken (about 5-7 minutes).' },
+                    { step: 'Remove chicken from pan and slice. Serve hot over steamed rice, drizzled with remaining sauce, and garnished with sesame seeds and chopped spring onions.' }
+                ]
+            },
+            {
+                id: 'bibimbap-vegetarian',
+                name: 'Vegetarian Bibimbap (Korean)',
+                region: 'Asian',
+                country: 'Korea',
+                description: 'A vibrant and healthy vegetarian version of the classic Korean mixed rice dish, packed with colourful vegetables.',
+                image: 'https://placehold.co/600x400/FFD700/000000?text=Veg+Bibimbap',
+                miseEnPlace: [
+                    'Cook rice.',
+                    'Prepare various vegetables (julienne, sauté).',
+                    'Prepare eggs (optional).',
+                ],
+                ingredients: [
+                    { name: 'Cooked Rice', quantity: '2 cups', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Rice', substitute: null },
+                    { name: 'Spinach', quantity: '1 bunch', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spinach', substitute: null },
+                    { name: 'Carrots', quantity: '1', unit: 'julienned', visual: 'https://placehold.co/100x100/F4A460/000000?text=Carrots', substitute: null },
+                    { name: 'Courgette', quantity: '1/2', unit: 'julienned', visual: 'https://placehold.co/100x100/90EE90/000000?text=Courgette', substitute: 'Cucumber' },
+                    { name: 'Shiitake Mushrooms', quantity: '4', unit: 'sliced', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Mushrooms', substitute: 'Button Mushrooms' },
+                    { name: 'Bean Sprouts', quantity: '1 cup', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Bean+Sprouts', substitute: null },
+                    { name: 'Gochujang (Korean Chilli Paste)', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Gochujang', substitute: 'Sriracha + Sugar' },
+                    { name: 'Sesame Oil', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Sesame+Oil', substitute: null },
+                    { name: 'Garlic', quantity: '2 cloves', unit: 'minced', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Egg', quantity: '1', unit: 'fried (optional)', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Egg', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Cook rice. Prepare each vegetable (spinach, carrots, courgette, mushrooms, bean sprouts) by sautéing separately with a little garlic and sesame oil. Season lightly.' },
+                    { step: 'Fry an egg sunny side up (if using). In a bowl, combine gochujang, sesame oil, and a little sugar for the sauce.' },
+                    { step: 'Assemble bowls: place warm rice at the bottom. Artfully arrange each prepared vegetable and a fried egg (if using) on top. Serve with the gochujang sauce on the side.' }
+                ]
+            },
+            {
+                id: 'chicken-adobo-vegetarian',
+                name: 'Vegetarian Adobo (Filipino)',
+                region: 'Asian',
+                country: 'Philippines',
+                description: 'A vegetarian take on the classic Filipino adobo, using mushrooms or tofu instead of meat, braised in vinegar, soy sauce, garlic, and peppercorns.',
+                image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Veg+Adobo',
+                miseEnPlace: [
+                    'Slice mushrooms/tofu.',
+                    'Crush garlic cloves.',
+                    'Measure liquids.',
+                ],
+                ingredients: [
+                    { name: 'Portobello Mushrooms', quantity: '300g', unit: 'sliced', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Mushrooms', substitute: 'Firm Tofu' },
+                    { name: 'Soy Sauce', quantity: '1/2 cup', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
+                    { name: 'White Vinegar', quantity: '1/2 cup', unit: '', visual: 'https://placehold.co/100x100/E0FFFF/000000?text=White+Vinegar', substitute: 'Cane Vinegar' },
+                    { name: 'Garlic', quantity: '6 cloves', unit: 'crushed', visual: 'https://placehold.co/100x100/F5DEB3/000000?text=Garlic', substitute: null },
+                    { name: 'Black Peppercorns', quantity: '1 tsp', unit: 'whole', visual: 'https://placehold.co/100x100/D3D3D3/000000?text=Peppercorns', substitute: null },
+                    { name: 'Bay Leaves', quantity: '2', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Bay+Leaves', substitute: null },
+                    { name: 'Water', quantity: '1/2 cup', unit: '', visual: 'https://placehold.co/100x100/A2D2FF/000000?text=Water', substitute: null }
+                ],
+                instructions: [
+                    { step: 'Combine sliced mushrooms (or tofu), soy sauce, vinegar, crushed garlic, whole peppercorns, and bay leaves in a pot. Bring to a boil.' },
+                    { step: 'Reduce heat, cover, and simmer for 15-20 minutes, or until mushrooms are tender and sauce has reduced slightly. Stir occasionally.' },
+                    { step: 'Remove lid and continue to simmer until sauce reduces and thickens slightly. Taste and adjust seasoning.' },
+                    { step: 'Serve hot with steamed rice.' }
+                ]
+            }
+        ];
+
+        // Get DOM elements
+        const recipeSelect = document.getElementById('recipe-select');
+        const countrySelect = document.getElementById('country-select'); // Renamed from regionSelect
+        const loadRecipeBtn = document.getElementById('load-recipe-btn');
+        const recipeDisplay = document.getElementById('recipe-display');
+        const recipeTitle = document.getElementById('recipe-title');
+        const recipeDescription = document.getElementById('recipe-description');
+        const miseEnPlaceList = document.getElementById('mise-en-place-list');
+        const ingredientsList = document.getElementById('ingredients-list');
+        const instructionsList = document.getElementById('instructions-list');
+
+        let currentRecipe = null; // To store the currently displayed recipe object
+
+        // Populate recipe select dropdown
+        function populateRecipeSelect() {
+            recipeSelect.innerHTML = '<option value="">-- Select a Recipe --</option>';
+            // Filter based on selected country
+            const selectedCountry = countrySelect.value;
+            const filteredRecipes = selectedCountry ? recipes.filter(recipe => recipe.country === selectedCountry) : recipes;
+
+            filteredRecipes.forEach(recipe => {
+                const option = document.createElement('option');
+                option.value = recipe.id;
+                option.textContent = recipe.name;
+                recipeSelect.appendChild(option);
+            });
+        }
+
+        // Event listener for country filter
+        countrySelect.addEventListener('change', populateRecipeSelect); // Now calls populateRecipeSelect directly
+
+        // Function to display a selected recipe
+        function displayRecipe(recipeId) {
+            currentRecipe = recipes.find(r => r.id === recipeId);
+
+            if (!currentRecipe) {
+                recipeDisplay.classList.add('hidden');
+                // Using console.error instead of alert for better user experience in a real app
+                console.error('Please select a valid recipe.');
+                return;
+            }
+
+            // Show the recipe display section
+            recipeDisplay.classList.remove('hidden');
+
+            // Update recipe main image
+            let recipeImageElement = document.getElementById('recipe-main-image');
+            if (!recipeImageElement) {
+                recipeImageElement = document.createElement('img');
+                recipeImageElement.id = 'recipe-main-image';
+                recipeImageElement.className = 'w-full h-64 object-cover rounded-lg mb-6';
+                recipeDisplay.prepend(recipeImageElement); // Add it at the top of the display section
+            }
+            recipeImageElement.src = currentRecipe.image;
+            recipeImageElement.alt = currentRecipe.name;
+
+
+            // Update recipe title and description
+            recipeTitle.textContent = currentRecipe.name;
+            recipeDescription.textContent = currentRecipe.description;
+
+            // Populate Mise en Place
+            miseEnPlaceList.innerHTML = '';
+            currentRecipe.miseEnPlace.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                miseEnPlaceList.appendChild(li);
+            });
+
+            // Populate Ingredients
+            ingredientsList.innerHTML = '';
+            currentRecipe.ingredients.forEach(ingredient => {
+                const ingredientDiv = document.createElement('div');
+                ingredientDiv.className = 'flex items-center space-x-4 p-3 border border-gray-200 rounded-lg bg-gray-50';
+                ingredientDiv.innerHTML = `
+                    <img src="${ingredient.visual}" alt="${ingredient.name}" class="w-16 h-16 rounded-full object-cover border-2 border-red-300">
+                    <div class="flex-1">
+                        <p class="font-semibold text-lg">${ingredient.name}</p>
+                        <p class="text-gray-600">${ingredient.quantity} ${ingredient.unit}</p>
+                        ${ingredient.substitute ? `
+                            <button class="btn-secondary text-sm mt-2" onclick="showSubstitute(this)">
+                                Show Substitute (NZ)
+                            </button>
+                            <p class="text-sm text-gray-500 mt-1 hidden substitute-text">Substitute: ${ingredient.substitute}</p>
+                        ` : ''}
+                    </div>
+                `;
+                ingredientsList.appendChild(ingredientDiv);
+            });
+
+            // Populate Instructions
+            instructionsList.innerHTML = '';
+            currentRecipe.instructions.forEach((instruction, index) => {
+                const li = document.createElement('li');
+                li.className = 'p-4 border border-gray-200 rounded-lg bg-white flex items-start space-x-3';
+                li.innerHTML = `
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="step-checkbox" data-step-index="${index}">
+                        <span class="text-lg text-gray-800 flex-1">${index + 1}. ${instruction.step}</span>
+                    </label>
+                `;
+                instructionsList.appendChild(li);
+            });
+
+            // Add event listeners for checkboxes after they are rendered
+            document.querySelectorAll('.step-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const stepText = this.nextElementSibling;
+                    if (this.checked) {
+                        stepText.classList.add('step-completed');
+                    } else {
+                        stepText.classList.remove('step-completed');
+                    }
+                });
+            });
+        }
+
+        // Function to show substitute text
+        function showSubstitute(button) {
+            const substituteElement = button.nextElementSibling;
+            if (substituteElement) {
+                substituteElement.classList.toggle('hidden');
+                button.textContent = substituteElement.classList.contains('hidden') ? 'Show Substitute (NZ)' : 'Hide Substitute';
+            }
+        }
+
+        // Event listener for loading recipe
+        loadRecipeBtn.addEventListener('click', () => {
+            const selectedRecipeId = recipeSelect.value;
+            displayRecipe(selectedRecipeId);
+        });
+
+        // Initial population of the recipe dropdown
+        populateRecipeSelect();
+    </script>
+</body>
+</html>
