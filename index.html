@@ -60,6 +60,63 @@
             text-decoration: line-through;
             color: #6b7280; /* Gray-500 */
         }
+        /* Glossary Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            backdrop-filter: blur(5px); /* Frosted glass effect */
+            -webkit-backdrop-filter: blur(5px); /* Safari support */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .glossary-term {
+            color: #ef4444; /* Red-500 */
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .glossary-term:hover {
+            color: #dc2626; /* Red-600 */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8">
@@ -110,6 +167,32 @@
             <h2 id="recipe-title" class="text-3xl font-bold text-red-700 mb-4"></h2>
             <p id="recipe-description" class="text-gray-700 mb-6"></p>
 
+            <!-- Recipe Meta Info -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 text-center">
+                <div class="p-3 bg-gray-100 rounded-lg">
+                    <p class="text-sm font-semibold text-gray-500">Difficulty</p>
+                    <p id="recipe-difficulty" class="text-lg font-bold text-gray-800"></p>
+                </div>
+                <div class="p-3 bg-gray-100 rounded-lg">
+                    <p class="text-sm font-semibold text-gray-500">Prep Time</p>
+                    <p id="recipe-prep-time" class="text-lg font-bold text-gray-800"></p>
+                </div>
+                <div class="p-3 bg-gray-100 rounded-lg">
+                    <p class="text-sm font-semibold text-gray-500">Cook Time</p>
+                    <p id="recipe-cook-time" class="text-lg font-bold text-gray-800"></p>
+                </div>
+                <div class="p-3 bg-gray-100 rounded-lg">
+                    <p class="text-sm font-semibold text-gray-500">Servings</p>
+                    <p id="recipe-servings" class="text-lg font-bold text-gray-800"></p>
+                </div>
+            </div>
+
+            <!-- Cultural Note -->
+            <div id="cultural-note-section" class="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-200 hidden">
+                <h3 class="text-xl font-semibold text-blue-800 mb-2">Cultural Context</h3>
+                <p id="cultural-note-text" class="text-blue-700"></p>
+            </div>
+
             <!-- Mise en Place Guide -->
             <div class="mb-8">
                 <h3 class="text-2xl font-semibold text-gray-800 mb-3">1. Mise en Place (Preparation)</h3>
@@ -128,28 +211,119 @@
             </div>
 
             <!-- Instructions Section -->
-            <div>
+            <div class="mb-8">
                 <h3 class="text-2xl font-semibold text-gray-800 mb-3">3. Step-by-Step Instructions</h3>
                 <ol id="instructions-list" class="space-y-4">
                     <!-- Instructions will be populated by JavaScript -->
                 </ol>
             </div>
+
+            <!-- Chef's Tips Section -->
+            <div id="chef-tips-section" class="mb-8 p-4 bg-yellow-50 rounded-lg border border-yellow-200 hidden">
+                <h3 class="text-xl font-semibold text-yellow-800 mb-2">Chef's Tips</h3>
+                <ul id="chef-tips-list" class="list-disc list-inside text-yellow-700 space-y-1">
+                    <!-- Chef's Tips will be populated by JavaScript -->
+                </ul>
+            </div>
         </section>
     </div>
 
+    <!-- Glossary Modal -->
+    <div id="glossary-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeGlossaryModal()">&times;</span>
+            <h2 id="glossary-term-title" class="text-2xl font-bold text-red-700 mb-4"></h2>
+            <p id="glossary-term-definition" class="text-gray-700"></p>
+        </div>
+    </div>
+
     <script>
+        // Glossary Terms Data
+        const glossaryTerms = {
+            "sauté": "To cook food quickly in a small amount of fat over high heat, often stirring or tossing the food.",
+            "simmer": "To cook food in liquid just below the boiling point. Small bubbles will form and gently break the surface.",
+            "blanch": "To briefly immerse food (usually vegetables) in boiling water, then immediately plunge it into ice water to stop the cooking process. This helps preserve colour and texture.",
+            "julienne": "To cut food into long, thin strips, resembling matchsticks.",
+            "braise": "To cook food slowly in a small amount of liquid in a covered pot, usually after browning it first. This method tenderises tough cuts of meat.",
+            "mince": "To chop food into very small, irregular pieces.",
+            "dice": "To cut food into small, uniform cubes.",
+            "cubed": "Cut into cube-shaped pieces.",
+            "shredded": "Cut or torn into thin strips.",
+            "grated": "Reduced to small shreds by rubbing against a grater.",
+            "marinade": "A savoury, acidic sauce in which food is soaked to flavour or tenderise it.",
+            "slurry": "A mixture of a thickening agent (like cornstarch or flour) and liquid, used to thicken sauces or soups.",
+            "deveined": "To remove the dark vein (digestive tract) from the back of a prawn or shrimp.",
+            "broth": "A savoury liquid made from water in which bones, meat, or vegetables have been simmered.",
+            "dashi": "A basic Japanese soup stock, typically made from kombu (dried kelp) and katsuobushi (dried bonito flakes).",
+            "wok": "A large, round-bottomed cooking pot, originating in China, used for stir-frying, steaming, and deep-frying.",
+            "stir-fry": "To cook food quickly by stirring and tossing it in a wok or large pan over high heat.",
+            "garnish": "To decorate or embellish food, typically with a small amount of additional food.",
+            "tender-crisp": "A term describing vegetables that are cooked until they are tender but still have a slight crispness to them.",
+            "rehydrate": "To restore water to something dehydrated, typically by soaking.",
+            "blanch": "To briefly immerse food (usually vegetables) in boiling water, then immediately plunge it into ice water to stop the cooking process. This helps preserve colour and texture.",
+            "sauté": "To cook food quickly in a small amount of fat over high heat, often stirring or tossing the food.",
+            "simmer": "To cook food in liquid just below the boiling point. Small bubbles will form and gently break the surface.",
+            "broth": "A savoury liquid made from water in which bones, meat, or vegetables have been simmered.",
+            "cornstarch slurry": "A mixture of cornstarch and cold water, used to thicken sauces and soups.",
+            "wok": "A large, round-bottomed cooking pot, originating in China, used for stir-frying, steaming, and deep-frying.",
+            "diced": "Cut into small, uniform cubes.",
+            "julienned": "Cut into long, thin strips, resembling matchsticks.",
+            "minced": "Chopped into very small, irregular pieces.",
+            "grated": "Reduced to small shreds by rubbing against a grater.",
+            "blanched": "Briefly immersed in boiling water and then in ice water to stop cooking.",
+            "marinate": "To soak food in a savoury, acidic liquid to flavour or tenderise it.",
+            "skimming": "Removing foam or impurities from the surface of a liquid during cooking.",
+            "seasoning": "Adding salt, pepper, herbs, or spices to food to enhance its flavour.",
+            "braise": "To cook food slowly in a small amount of liquid in a covered pot, usually after browning it first.",
+            "devein": "To remove the dark digestive tract from a prawn or shrimp.",
+            "al dente": "Describes pasta or rice cooked to be firm to the bite, not soft or mushy.",
+            "emulsify": "To combine two liquids that don't normally mix (like oil and vinegar) into a smooth mixture.",
+            "fold": "To gently combine a light, airy mixture with a heavier one without deflating it.",
+            "knead": "To work dough by hand or with a machine to develop gluten.",
+            "reduce": "To thicken and intensify the flavour of a liquid by simmering or boiling it down.",
+            "render": "To melt fat from meat over low heat.",
+            "roux": "A mixture of fat (usually butter) and flour cooked together, used as a thickening agent for sauces and soups.",
+            "zest": "The outermost, coloured part of citrus peel, used for flavour."
+        };
+
+        // Get DOM elements
+        const recipeSelect = document.getElementById('recipe-select');
+        const countrySelect = document.getElementById('country-select');
+        const loadRecipeBtn = document.getElementById('load-recipe-btn');
+        const recipeDisplay = document.getElementById('recipe-display');
+        const recipeTitle = document.getElementById('recipe-title');
+        const recipeDescription = document.getElementById('recipe-description');
+        const recipeDifficulty = document.getElementById('recipe-difficulty');
+        const recipePrepTime = document.getElementById('recipe-prep-time');
+        const recipeCookTime = document.getElementById('recipe-cook-time');
+        const recipeServings = document.getElementById('recipe-servings');
+        const culturalNoteSection = document.getElementById('cultural-note-section');
+        const culturalNoteText = document.getElementById('cultural-note-text');
+        const miseEnPlaceList = document.getElementById('mise-en-place-list');
+        const ingredientsList = document.getElementById('ingredients-list');
+        const instructionsList = document.getElementById('instructions-list');
+        const chefTipsSection = document.getElementById('chef-tips-section');
+        const chefTipsList = document.getElementById('chef-tips-list');
+        const glossaryModal = document.getElementById('glossary-modal');
+        const glossaryTermTitle = document.getElementById('glossary-term-title');
+        const glossaryTermDefinition = document.getElementById('glossary-term-definition');
+
+        let currentRecipe = null; // To store the currently displayed recipe object
+
         // Mock Recipe Data
-        // This data simulates what you might fetch from a database.
-        // It includes details for Smart Substitutions, Ingredient Visuals,
-        // Video Demonstrations, Mise en Place, and Checklist functionality.
         const recipes = [
             {
                 id: 'massaman-curry',
-                name: 'Massaman Curry (Thai)',
+                name: 'Massaman Curry',
                 region: 'Asian',
                 country: 'Thailand',
                 description: 'A rich, relatively mild Thai curry that is a fusion of Thai and Indian flavours, with a hint of sweetness.',
                 image: 'https://placehold.co/600x400/FFD700/000000?text=Massaman+Curry',
+                difficulty: 'Medium',
+                prepTime: '20 mins',
+                cookTime: '40 mins',
+                servings: 4,
+                culturalNote: 'Massaman curry is a unique Thai curry with Persian influences, often featuring spices not commonly found in other Thai curries like cardamom and cinnamon.',
                 miseEnPlace: [
                     'Chop chicken into bite-sized pieces.',
                     'Dice potatoes into 2cm cubes.',
@@ -176,15 +350,24 @@
                     { step: 'Stir in the fish sauce, palm sugar, and lime leaves. Taste and adjust seasoning as needed.' },
                     { step: 'Add the roasted peanuts and simmer for another 5 minutes.' },
                     { step: 'Serve hot with steamed jasmine rice.' }
+                ],
+                tips: [
+                    'For a richer curry, use full-fat coconut milk. For a lighter version, use light coconut milk.',
+                    'If you prefer a thicker sauce, you can simmer it uncovered for a few extra minutes at the end.'
                 ]
             },
             {
                 id: 'haggis-neeps-tatties',
-                name: 'Haggis, Neeps, and Tatties (Scottish)',
+                name: 'Haggis, Neeps, and Tatties',
                 region: 'European',
-                country: 'United Kingdom', // Assuming Scotland is part of UK for country filter
+                country: 'United Kingdom',
                 description: 'A traditional Scottish dish, often served on Burns Night, consisting of haggis, mashed turnips (neeps), and mashed potatoes (tatties).',
                 image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Haggis',
+                difficulty: 'Easy',
+                prepTime: '15 mins',
+                cookTime: '45 mins',
+                servings: 2,
+                culturalNote: 'Haggis is Scotland\'s national dish, traditionally made from sheep\'s pluck (heart, liver, and lungs) minced with onion, oatmeal, suet, spices, and salt, encased in the animal\'s stomach. Vegetarian versions are widely available.',
                 miseEnPlace: [
                     'Peel and chop potatoes.',
                     'Peel and chop swede (neeps).',
@@ -204,15 +387,24 @@
                     { step: 'While the haggis cooks, boil the chopped swede in salted water until very tender (about 20-25 minutes). Drain well and mash with a knob of butter and seasoning.' },
                     { step: 'In a separate pot, boil the chopped potatoes in salted water until very tender (about 15-20 minutes). Drain well and mash with butter, milk, salt, and pepper until smooth.' },
                     { step: 'Serve the haggis with a side of mashed neeps and tatties.' }
+                ],
+                tips: [
+                    'For extra creamy tatties, use a potato ricer or a hand mixer to mash them.',
+                    'A dash of nutmeg can enhance the flavour of the neeps.'
                 ]
             },
             {
                 id: 'pavlova',
-                name: 'Classic Pavlova (New Zealand)',
+                name: 'Classic Pavlova',
                 region: 'Oceanic',
                 country: 'New Zealand',
                 description: 'A popular meringue-based dessert, crispy on the outside and soft and marshmallow-like on the inside, topped with whipped cream and fresh fruit.',
                 image: 'https://placehold.co/600x400/FFFACD/000000?text=Pavlova',
+                difficulty: 'Medium',
+                prepTime: '25 mins',
+                cookTime: '1 hr 15 mins',
+                servings: 8,
+                culturalNote: 'Pavlova is a beloved dessert in New Zealand and Australia, with both countries claiming its origin. It\'s a staple at summer gatherings and Christmas celebrations.',
                 miseEnPlace: [
                     'Separate egg whites carefully.',
                     'Measure sugar, cornflour, and vinegar.',
@@ -235,15 +427,24 @@
                     { step: 'Spoon the meringue onto the prepared baking paper, shaping it into the drawn circle with a slight dip in the centre.' },
                     { step: 'Place in the oven and immediately reduce the temperature to 120°C (250°F). Bake for 1 hour and 15 minutes. Turn off the oven and leave the pavlova inside with the door ajar for at least 3-4 hours, or overnight, to cool completely.' },
                     { step: 'Once completely cool, transfer to a serving plate. Whip the thickened cream until soft peaks form and spread over the pavlova. Top with fresh berries or your favourite fruit.' }
+                ],
+                tips: [
+                    'Ensure your bowl and beaters are completely grease-free for best meringue results.',
+                    'Do not open the oven door while the pavlova is baking or cooling, as this can cause it to crack or collapse.'
                 ]
             },
             {
                 id: 'sushi-rolls',
-                name: 'Classic Sushi Rolls (Maki) (Japanese)',
+                name: 'Classic Sushi Rolls (Maki)',
                 region: 'Asian',
                 country: 'Japan',
                 description: 'Learn to make simple and delicious homemade sushi rolls with your favourite fillings.',
                 image: 'https://placehold.co/600x400/8B0000/FFFFFF?text=Sushi+Rolls',
+                difficulty: 'Medium',
+                prepTime: '30 mins',
+                cookTime: '20 mins',
+                servings: 3,
+                culturalNote: 'Maki sushi, or rolled sushi, is one of the most popular forms of sushi. It\'s a staple in Japanese cuisine and often enjoyed as a light meal or snack.',
                 miseEnPlace: [
                     'Cook sushi rice and season.',
                     'Prepare fillings (slice fish, vegetables).',
@@ -265,15 +466,24 @@
                     { step: 'Arrange your chosen fillings (e.g., salmon, cucumber, avocado) in a line across the center of the rice.' },
                     { step: 'Using the mat, carefully roll the sushi tightly from the bottom edge, pressing firmly as you roll. Moisten the clear edge of the nori to seal the roll.' },
                     { step: 'Slice the roll into 6-8 pieces with a sharp, wet knife. Serve with soy sauce, wasabi, and pickled ginger.' }
+                ],
+                tips: [
+                    'Use day-old rice if possible, as it is less sticky and easier to handle for sushi.',
+                    'Keep your hands and knife slightly wet when handling rice and slicing rolls to prevent sticking.'
                 ]
             },
             {
                 id: 'kimchi-jjigae',
-                name: 'Kimchi Jjigae (Korean)',
+                name: 'Kimchi Jjigae',
                 region: 'Asian',
                 country: 'Korea',
                 description: 'A hearty, spicy, and savoury Korean stew made with kimchi, tofu, pork (or other meat), and vegetables.',
                 image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Kimchi+Jjigae',
+                difficulty: 'Easy',
+                prepTime: '15 mins',
+                cookTime: '30 mins',
+                servings: 4,
+                culturalNote: 'Kimchi Jjigae is one of the most popular stews in Korean cuisine, deeply comforting and often eaten with a bowl of rice, especially on cold days.',
                 miseEnPlace: [
                     'Slice pork belly and kimchi.',
                     'Chop onion and spring onions.',
@@ -296,15 +506,24 @@
                     { step: 'Pour in anchovy broth and bring to a boil. Reduce heat and simmer for 10 minutes.' },
                     { step: 'Add tofu and continue to simmer for another 5-10 minutes. Taste and adjust seasoning.' },
                     { step: 'Garnish with spring onions and serve hot with rice.' }
+                ],
+                tips: [
+                    'Using aged kimchi is key for a deeper, more complex flavour in your jjigae.',
+                    'Adjust the amount of gochugaru to control the spice level to your preference.'
                 ]
             },
             {
                 id: 'kung-pao-chicken',
-                name: 'Kung Pao Chicken (Chinese)',
+                name: 'Kung Pao Chicken',
                 region: 'Asian',
                 country: 'China',
                 description: 'A classic Sichuan dish featuring spicy, stir-fried chicken with peanuts, vegetables, and chilli peppers.',
                 image: 'https://placehold.co/600x400/CD5C5C/FFFFFF?text=Kung+Pao+Chicken',
+                difficulty: 'Medium',
+                prepTime: '20 mins',
+                cookTime: '15 mins',
+                servings: 3,
+                culturalNote: 'Kung Pao Chicken is a famous Sichuan dish known for its distinctive spicy, sweet, and tangy flavour. It\'s a staple in Chinese restaurants worldwide.',
                 miseEnPlace: [
                     'Dice chicken and marinate.',
                     'Chop vegetables (bell peppers, spring onions).',
@@ -330,15 +549,24 @@
                     { step: 'Add marinated chicken and stir-fry until cooked through. Remove chicken.' },
                     { step: 'Add garlic, ginger, and spring onion whites to the wok and stir-fry briefly. Add bell peppers (if using).' },
                     { step: 'Return chicken to the wok. Pour in the sauce mixture and stir until thickened. Add peanuts and spring onion greens. Serve immediately with rice.' }
+                ],
+                tips: [
+                    'For an authentic Sichuan numbing sensation, don\'t remove the Sichuan peppercorns, but be mindful of their intensity.',
+                    'Ensure your wok is very hot before adding ingredients for a proper stir-fry.'
                 ]
             },
             {
                 id: 'taiwanese-beef-noodle',
-                name: 'Taiwanese Beef Noodle Soup (Taiwanese)',
+                name: 'Taiwanese Beef Noodle Soup',
                 region: 'Asian',
                 country: 'Taiwan',
                 description: 'A rich and aromatic beef noodle soup, a staple in Taiwanese cuisine, known for its tender beef and flavourful broth.',
                 image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Beef+Noodle',
+                difficulty: 'Advanced',
+                prepTime: '30 mins',
+                cookTime: '3 hrs',
+                servings: 4,
+                culturalNote: 'Taiwanese Beef Noodle Soup is considered a national dish of Taiwan, with countless variations and fiercely debated best recipes. It\'s a deeply comforting and flavourful meal.',
                 miseEnPlace: [
                     'Cut beef into chunks.',
                     'Chop aromatics (ginger, garlic, spring onions).',
@@ -363,15 +591,24 @@
                     { step: 'Add soy sauce, rock sugar, chopped tomato, and beef broth. Bring to a boil, then reduce heat and simmer for 2-3 hours until beef is very tender.' },
                     { step: 'Cook noodles according to package instructions. Blanch bok choy or other vegetables.' },
                     { step: 'Assemble bowls: place cooked noodles, top with tender beef, pour over hot broth, and add blanched vegetables. Garnish with spring onions.' }
+                ],
+                tips: [
+                    'For the most tender beef, ensure you simmer it slowly for the recommended time.',
+                    'Adjust the amount of rock sugar to achieve your desired level of sweetness in the broth.'
                 ]
             },
             {
                 id: 'pho-bo',
-                name: 'Phở Bò (Vietnamese Beef Noodle Soup)',
+                name: 'Phở Bò',
                 region: 'Asian',
                 country: 'Vietnam',
                 description: 'A fragrant and comforting Vietnamese beef noodle soup, known for its clear, aromatic broth, tender beef, and fresh herbs.',
                 image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Pho+Bo',
+                difficulty: 'Advanced',
+                prepTime: '45 mins',
+                cookTime: '4-6 hrs',
+                servings: 4,
+                culturalNote: 'Phở Bò is Vietnam\'s iconic national dish, a flavourful noodle soup that is a staple for breakfast, lunch, or dinner. The broth is the heart of the dish, requiring long simmering for depth.',
                 miseEnPlace: [
                     'Roast ginger and onion.',
                     'Toast spices.',
@@ -399,15 +636,24 @@
                     { step: 'Reduce heat and simmer for at least 3-4 hours (or longer for more flavour), skimming impurities periodically. Remove brisket when tender, slice thinly, and set aside.' },
                     { step: 'Strain the broth through a fine-mesh sieve, discarding solids. Taste and adjust seasoning.' },
                     { step: 'Cook rice noodles according to package instructions. Arrange noodles, sliced beef, and fresh herbs in bowls. Pour hot broth over everything and serve immediately with lime wedges and chilli.' }
+                ],
+                tips: [
+                    'The key to great Pho is a long-simmered, clear broth. Don\'t rush the simmering process.',
+                    'Serve with a variety of fresh herbs and condiments like lime wedges, bean sprouts, and sliced chillies for a customizable experience.'
                 ]
             },
             {
                 id: 'chicken-tikka-masala',
-                name: 'Chicken Tikka Masala (Indian)',
+                name: 'Chicken Tikka Masala',
                 region: 'Asian',
                 country: 'India',
                 description: 'A popular Indian curry with tender pieces of chicken cooked in a creamy, spiced tomato sauce.',
                 image: 'https://placehold.co/600x400/FF6347/FFFFFF?text=Chicken+Tikka+Masala',
+                difficulty: 'Medium',
+                prepTime: '25 mins',
+                cookTime: '40 mins',
+                servings: 4,
+                culturalNote: 'Chicken Tikka Masala is a widely popular dish, often considered the national dish of Britain, though its origins are debated between India and the UK. It\'s a rich, comforting curry.',
                 miseEnPlace: [
                     'Cut chicken into cubes and marinate.',
                     'Chop onions and tomatoes.',
@@ -431,15 +677,24 @@
                     { step: 'In the same pan, sauté chopped onion until golden. Add remaining ginger garlic paste and cook for 1 minute.' },
                     { step: 'Stir in tomato puree, garam masala, and a splash of water. Simmer for 10-15 minutes until sauce thickens and oil separates.' },
                     { step: 'Add cooked chicken and cream. Simmer for another 5-10 minutes until chicken is cooked through and sauce is heated. Serve with rice or naan.' }
+                ],
+                tips: [
+                    'For best flavour, marinate the chicken for at least 2 hours, or even overnight.',
+                    'Adjust the amount of chilli powder (if adding) to control the spice level.'
                 ]
             },
             {
                 id: 'laksa',
-                name: 'Laksa (Malaysian/Singaporean)',
+                name: 'Laksa',
                 region: 'Asian',
                 country: 'Malaysia',
                 description: 'A spicy noodle soup popular in Southeast Asian cuisine, with a rich and aromatic coconut milk-based broth.',
                 image: 'https://placehold.co/600x400/FF8C00/000000?text=Laksa',
+                difficulty: 'Medium',
+                prepTime: '20 mins',
+                cookTime: '30 mins',
+                servings: 4,
+                culturalNote: 'Laksa is a diverse noodle dish found across Southeast Asia, with regional variations. The Malaysian and Singaporean versions are often rich and creamy with a coconut milk base.',
                 miseEnPlace: [
                     'Prepare laksa paste (or use store-bought).',
                     'Cook noodles and prawns.',
@@ -461,15 +716,24 @@
                     { step: 'Add prawns, tofu puffs, and fish cakes. Simmer until prawns are cooked through and tofu puffs are softened.' },
                     { step: 'Cook vermicelli noodles according to package instructions. Drain well.' },
                     { step: 'Assemble bowls: place noodles, top with broth, prawns, tofu puffs, and fish cakes. Garnish with fresh bean sprouts and coriander.' }
+                ],
+                tips: [
+                    'For a more authentic flavour, use a good quality store-bought laksa paste or make your own from scratch.',
+                    'Serve immediately to prevent the noodles from becoming too soft.'
                 ]
             },
             {
                 id: 'nasi-goreng',
-                name: 'Nasi Goreng (Indonesian Fried Rice)',
+                name: 'Nasi Goreng',
                 region: 'Asian',
                 country: 'Indonesia',
                 description: 'A flavourful and popular Indonesian fried rice dish, often served with a fried egg and various accompaniments.',
                 image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Nasi+Goreng',
+                difficulty: 'Easy',
+                prepTime: '15 mins',
+                cookTime: '20 mins',
+                servings: 3,
+                culturalNote: 'Nasi Goreng is Indonesia\'s national dish, a versatile and beloved fried rice that varies greatly from region to region and household to household. It\'s often a way to use up leftover rice.',
                 miseEnPlace: [
                     'Cook rice (preferably day-old).',
                     'Chop vegetables and meat.',
@@ -491,15 +755,24 @@
                     { step: 'Add mixed vegetables and stir-fry for 2-3 minutes. Add day-old rice and break up any clumps.' },
                     { step: 'Stir in kecap manis and chilli paste. Mix well, ensuring rice is evenly coated. Continue to stir-fry for 5-7 minutes until heated through and slightly crispy.' },
                     { step: 'Serve nasi goreng hot, topped with a fried egg and cucumber slices.' }
+                ],
+                tips: [
+                    'Using day-old, chilled rice is crucial for nasi goreng, as it prevents the dish from becoming mushy.',
+                    'Don\'t overcrowd the pan; cook in batches if necessary to ensure the rice fries rather than steams.'
                 ]
             },
             {
                 id: 'adobo',
-                name: 'Chicken Adobo (Filipino)',
+                name: 'Chicken Adobo',
                 region: 'Asian',
                 country: 'Philippines',
                 description: 'A popular Filipino dish made with chicken or pork, braised in vinegar, soy sauce, garlic, and peppercorns.',
                 image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Chicken+Adobo',
+                difficulty: 'Easy',
+                prepTime: '15 mins',
+                cookTime: '45 mins',
+                servings: 4,
+                culturalNote: 'Adobo is considered the unofficial national dish of the Philippines. Its name comes from the Spanish word "adobar," meaning to marinate, and refers to the cooking process rather than a specific ingredient.',
                 miseEnPlace: [
                     'Cut chicken into serving pieces.',
                     'Crush garlic cloves.',
@@ -519,15 +792,24 @@
                     { step: 'Reduce heat, cover, and simmer for 30-40 minutes, or until chicken is tender. Stir occasionally.' },
                     { step: 'Remove lid and continue to simmer until sauce reduces and thickens slightly, and chicken is browned. Taste and adjust seasoning.' },
                     { step: 'Serve hot with steamed rice.' }
+                ],
+                tips: [
+                    'Do not stir the adobo for the first 10-15 minutes of simmering after adding vinegar, as this can prevent the vinegar flavour from mellowing.',
+                    'For a richer sauce, you can brown the chicken pieces in a separate pan before adding them to the pot with the sauce ingredients.'
                 ]
             },
             {
                 id: 'ramen',
-                name: 'Shoyu Ramen (Japanese)',
+                name: 'Shoyu Ramen',
                 region: 'Asian',
                 country: 'Japan',
                 description: 'A classic Japanese ramen with a clear, soy sauce-based broth, often topped with pork, egg, and nori.',
                 image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Ramen',
+                difficulty: 'Advanced',
+                prepTime: '30 mins',
+                cookTime: '3-5 hrs',
+                servings: 2,
+                culturalNote: 'Ramen is a Japanese noodle dish that has gained immense popularity worldwide. Shoyu ramen refers to a ramen with a soy sauce-based broth, known for its clear, savoury, and slightly tangy flavour.',
                 miseEnPlace: [
                     'Prepare ramen broth (or use good quality chicken/pork broth).',
                     'Cook ramen noodles.',
@@ -548,15 +830,24 @@
                     { step: 'Prepare ramen broth by simmering chicken or pork bones for several hours, or use good quality store-bought broth. Season with soy sauce, mirin, and sake.' },
                     { step: 'Cook ramen noodles according to package instructions. Drain well.' },
                     { step: 'Assemble bowls: place cooked noodles, pour over hot broth, and arrange sliced chashu pork, soft-boiled eggs, nori, and chopped spring onions on top.' }
+                ],
+                tips: [
+                    'For perfectly soft-boiled ramen eggs, cook them for 6-7 minutes, then immediately transfer to an ice bath.',
+                    'Warm your serving bowls before assembling the ramen to keep the soup hot for longer.'
                 ]
             },
             {
                 id: 'bibimbap',
-                name: 'Bibimbap (Korean Mixed Rice)',
+                name: 'Bibimbap',
                 region: 'Asian',
                 country: 'Korea',
                 description: 'A colourful and nutritious Korean dish of warm rice topped with sautéed vegetables, chilli paste, and often beef and a fried egg.',
                 image: 'https://placehold.co/600x400/FFD700/000000?text=Bibimbap',
+                difficulty: 'Medium',
+                prepTime: '30 mins',
+                cookTime: '20 mins',
+                servings: 2,
+                culturalNote: 'Bibimbap literally means "mixed rice" and is a cornerstone of Korean cuisine. It\'s celebrated for its vibrant colours, balanced flavours, and nutritional value.',
                 miseEnPlace: [
                     'Cook rice.',
                     'Prepare various vegetables (julienne, sauté).',
@@ -579,15 +870,24 @@
                     { step: 'Cook ground beef (if using) and season with soy sauce and garlic.' },
                     { step: 'Fry eggs sunny side up. In a bowl, combine gochujang, sesame oil, and a little sugar for the sauce.' },
                     { step: 'Assemble bowls: place warm rice at the bottom. Artfully arrange each prepared vegetable, beef, and a fried egg on top. Serve with the gochujang sauce on the side.' }
+                ],
+                tips: [
+                    'For an authentic Dolsot Bibimbap (stone pot bibimbap), use a hot stone bowl to create a crispy rice crust at the bottom.',
+                    'Mix all ingredients thoroughly just before eating to combine all the flavours and textures.'
                 ]
             },
             {
                 id: 'mapo-tofu',
-                name: 'Mapo Tofu (Chinese)',
+                name: 'Mapo Tofu',
                 region: 'Asian',
                 country: 'China',
                 description: 'A popular spicy Sichuan dish featuring silken tofu set in a fiery, savoury sauce with minced meat and fermented broad bean paste.',
                 image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Mapo+Tofu',
+                difficulty: 'Medium',
+                prepTime: '20 mins',
+                cookTime: '20 mins',
+                servings: 3,
+                culturalNote: 'Mapo Tofu is a classic Sichuan dish known for its "ma la" flavour profile – a combination of numbing (ma) from Sichuan peppercorns and spicy (la) from chilli oil. It\'s a hearty and addictive dish.',
                 miseEnPlace: [
                     'Cut tofu into cubes.',
                     'Chop spring onions and garlic.',
@@ -612,15 +912,24 @@
                     { step: 'Add minced pork and cook until browned. Add garlic, ginger, and doubanjiang. Stir-fry until fragrant.' },
                     { step: 'Pour in chicken broth and soy sauce. Bring to a simmer. Gently add blanched tofu cubes.' },
                     { step: 'Stir in cornstarch slurry to thicken the sauce. Cook until sauce is glossy. Drizzle with chilli oil and garnish with chopped spring onions. Serve hot with rice.' }
+                ],
+                tips: [
+                    'For an authentic Mapo Tofu, don\'t skip the doubanjiang and Sichuan peppercorns, as they provide the signature flavour.',
+                    'Handle the silken tofu gently to prevent it from breaking apart during cooking.'
                 ]
             },
             {
                 id: 'pad-thai',
-                name: 'Pad Thai (Thai)',
+                name: 'Pad Thai',
                 region: 'Asian',
                 country: 'Thailand',
                 description: 'A classic Thai stir-fried noodle dish with rice noodles, eggs, tofu, prawns or chicken, and a tangy-sweet-savoury sauce.',
                 image: 'https://placehold.co/600x400/FFD700/000000?text=Pad+Thai',
+                difficulty: 'Medium',
+                prepTime: '25 mins',
+                cookTime: '20 mins',
+                servings: 2,
+                culturalNote: 'Pad Thai is one of Thailand\'s most famous dishes, a street food staple that balances sweet, sour, salty, and spicy flavours. It\'s a must-try for anyone exploring Thai cuisine.',
                 miseEnPlace: [
                     'Soak rice noodles.',
                     'Prepare proteins (prawns, chicken, tofu).',
@@ -648,15 +957,24 @@
                     { step: 'Push ingredients to one side of the wok. Crack eggs into the empty side and scramble until just set. Mix with other ingredients.' },
                     { step: 'Add drained noodles and Pad Thai sauce. Stir-fry vigorously until noodles are tender and sauce is absorbed. Add bean sprouts and spring onions, stir-fry briefly.' },
                     { step: 'Serve hot, garnished with crushed peanuts and a lime wedge.' }
+                ],
+                tips: [
+                    'Do not over-soak the rice noodles, as they will continue to cook in the wok and can become mushy.',
+                    'Have all your ingredients prepped and ready before you start cooking, as Pad Thai cooks very quickly.'
                 ]
             },
             {
                 id: 'tom-yum-goong',
-                name: 'Tom Yum Goong (Thai Spicy Shrimp Soup)',
+                name: 'Tom Yum Goong',
                 region: 'Asian',
                 country: 'Thailand',
                 description: 'A classic hot and sour Thai soup, famous for its bold flavours of lemongrass, galangal, kaffir lime leaves, and fresh prawns.',
                 image: 'https://placehold.co/600x400/FF6347/FFFFFF?text=Tom+Yum+Goong',
+                difficulty: 'Medium',
+                prepTime: '20 mins',
+                cookTime: '25 mins',
+                servings: 2,
+                culturalNote: 'Tom Yum Goong is one of Thailand\'s most iconic dishes, known for its distinctive hot and sour flavour profile. It\'s a fragrant and invigorating soup, often served as an appetizer or light meal.',
                 miseEnPlace: [
                     'Prepare lemongrass, galangal, lime leaves.',
                     'Chop mushrooms and chillies.',
@@ -679,15 +997,24 @@
                     { step: 'Add prawns and mushrooms. Cook until prawns turn pink and mushrooms are tender.' },
                     { step: 'Stir in fish sauce, lime juice, and chilli paste. Taste and adjust seasoning as needed for desired sourness and spice.' },
                     { step: 'Ladle into bowls and garnish with fresh coriander and crushed bird\'s eye chillies. Serve hot.' }
+                ],
+                tips: [
+                    'Bruising the lemongrass and galangal helps release their aromatic oils into the broth.',
+                    'Adjust the amount of chilli paste and fresh chillies to control the heat level to your liking.'
                 ]
             },
             {
                 id: 'sushi-nigiri',
-                name: 'Sushi Nigiri (Japanese)',
+                name: 'Sushi Nigiri',
                 region: 'Asian',
                 country: 'Japan',
                 description: 'Hand-pressed sushi rice topped with a slice of fresh fish or other seafood.',
                 image: 'https://placehold.co/600x400/8B0000/FFFFFF?text=Sushi+Nigiri',
+                difficulty: 'Medium',
+                prepTime: '20 mins',
+                cookTime: '20 mins',
+                servings: 2,
+                culturalNote: 'Nigiri sushi is a traditional form of sushi where a small mound of seasoned rice is topped with a single slice of seafood. It emphasizes the quality and freshness of the fish.',
                 miseEnPlace: [
                     'Cook and season sushi rice.',
                     'Slice fish thinly.',
@@ -706,15 +1033,24 @@
                     { step: 'Dab a tiny amount of wasabi onto one side of a sliced fish piece.' },
                     { step: 'Place the fish, wasabi-side down, onto the rice. Gently press and shape to adhere the fish to the rice.' },
                     { step: 'Repeat for remaining pieces. Serve immediately with soy sauce and pickled ginger.' }
+                ],
+                tips: [
+                    'Use sushi-grade fish from a reputable fishmonger to ensure it is safe for raw consumption.',
+                    'The key to good nigiri is gently forming the rice; avoid pressing too hard, which can make it dense.'
                 ]
             },
             {
                 id: 'tempura',
-                name: 'Vegetable Tempura (Japanese)',
+                name: 'Vegetable Tempura',
                 region: 'Asian',
                 country: 'Japan',
                 description: 'Lightly battered and deep-fried vegetables, a popular Japanese dish known for its crispy texture.',
                 image: 'https://placehold.co/600x400/FFD700/000000?text=Tempura',
+                difficulty: 'Medium',
+                prepTime: '25 mins',
+                cookTime: '20 mins',
+                servings: 4,
+                culturalNote: 'Tempura is a Japanese dish where seafood and vegetables are lightly battered and deep-fried. The technique was introduced to Japan by Portuguese missionaries in the 16th century and has since evolved into a distinct Japanese culinary art form.',
                 miseEnPlace: [
                     'Prepare vegetables (slice, pat dry).',
                     'Make tempura batter.',
@@ -734,15 +1070,24 @@
                     { step: 'Heat vegetable oil in a deep pot to 170°C (340°F).' },
                     { step: 'Dip each vegetable piece into the batter, letting excess drip off. Carefully place into the hot oil. Fry in batches until light golden and crispy. Drain on a wire rack.' },
                     { step: 'Serve immediately with dipping sauce (e.g., soy sauce with grated ginger).' }
+                ],
+                tips: [
+                    'Keep the batter very cold by adding ice cubes to the water or placing the bowl over an ice bath. This helps create a crispier tempura.',
+                    'Do not overcrowd the pot when frying, as this will lower the oil temperature and result in soggy tempura.'
                 ]
             },
             {
                 id: 'tteokbokki',
-                name: 'Tteokbokki (Korean Spicy Rice Cakes)',
+                name: 'Tteokbokki',
                 region: 'Asian',
                 country: 'Korea',
                 description: 'A popular Korean street food dish made from chewy cylindrical rice cakes, fish cakes, and boiled eggs in a sweet and spicy gochujang sauce.',
                 image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Tteokbokki',
+                difficulty: 'Easy',
+                prepTime: '15 mins',
+                cookTime: '20 mins',
+                servings: 2,
+                culturalNote: 'Tteokbokki is a beloved Korean street food and comfort dish, especially popular among young people. Its chewy texture and addictive sweet-spicy sauce make it a unique culinary experience.',
                 miseEnPlace: [
                     'Soak rice cakes (if hard).',
                     'Slice fish cakes.',
@@ -764,15 +1109,24 @@
                     { step: 'In a pot, combine gochujang, gochugaru, sugar, minced garlic, and dashi stock. Bring to a simmer, stirring until sauce is smooth.' },
                     { step: 'Add rice cakes and fish cakes. Simmer for 10-15 minutes, stirring occasionally, until rice cakes are tender and sauce has thickened.' },
                     { step: 'Add boiled eggs and simmer for another 2-3 minutes to heat through. Garnish with chopped spring onions. Serve hot.' }
+                ],
+                tips: [
+                    'For extra chewiness, use fresh rice cakes if available. If using dried, ensure they are fully rehydrated before cooking.',
+                    'Adjust the sugar and gochugaru to achieve your preferred balance of sweetness and spice.'
                 ]
             },
             {
                 id: 'dumplings-potstickers',
-                name: 'Pork & Cabbage Dumplings (Potstickers) (Chinese)',
+                name: 'Pork & Cabbage Dumplings (Potstickers)',
                 region: 'Asian',
                 country: 'China',
                 description: 'Classic Chinese pan-fried dumplings with a savoury pork and cabbage filling, crispy on the bottom and tender on top.',
                 image: 'https://placehold.co/600x400/CD5C5C/FFFFFF?text=Dumplings',
+                difficulty: 'Medium',
+                prepTime: '45 mins',
+                cookTime: '25 mins',
+                servings: 4,
+                culturalNote: 'Potstickers are a type of Chinese dumpling, traditionally pan-fried on one side and then steamed. They are a popular comfort food and often served during family gatherings or festivals like Lunar New Year.',
                 miseEnPlace: [
                     'Chop cabbage and spring onions.',
                     'Prepare pork mince and seasonings.',
@@ -796,15 +1150,24 @@
                     { step: 'Heat vegetable oil in a non-stick pan over medium-high heat. Place dumplings in a single layer, flat side down, and fry for 2-3 minutes until bottoms are golden brown and crispy.' },
                     { step: 'Add about 1/2 cup of water to the pan (enough to cover the bottom 1/4 of the dumplings). Immediately cover with a lid and steam for 5-7 minutes until water evaporates and dumplings are cooked through.' },
                     { step: 'Remove lid and continue to cook for another minute or two to ensure bottoms are crispy. Serve hot with a dipping sauce (e.g., soy sauce, vinegar, chilli oil).' }
+                ],
+                tips: [
+                    'To prevent the filling from being watery, salt the cabbage and squeeze out excess moisture before mixing with other ingredients.',
+                    'Don\'t overfill the wrappers, or they will be difficult to seal and may burst during cooking.'
                 ]
             },
             {
                 id: 'gong-bao-ji-ding',
-                name: 'Gong Bao Ji Ding (Kung Pao Chicken - Simplified) (Chinese)',
+                name: 'Gong Bao Ji Ding (Kung Pao Chicken - Simplified)',
                 region: 'Asian',
                 country: 'China',
                 description: 'A simplified version of the spicy and savoury Kung Pao Chicken, perfect for a quick weeknight meal.',
                 image: 'https://placehold.co/600x400/CD5C5C/FFFFFF?text=Gong+Bao+Chicken',
+                difficulty: 'Easy',
+                prepTime: '15 mins',
+                cookTime: '15 mins',
+                servings: 3,
+                culturalNote: 'This is a simplified take on the classic Sichuan Kung Pao Chicken, making it more accessible for home cooks while retaining its signature sweet, sour, and spicy notes.',
                 miseEnPlace: [
                     'Dice chicken and marinate.',
                     'Chop spring onions and bell peppers.',
@@ -829,15 +1192,24 @@
                     { step: 'Heat oil in a wok. Add marinated chicken and stir-fry until cooked through. Remove chicken.' },
                     { step: 'Add garlic, ginger, and spring onion whites to the wok and stir-fry briefly. Add bell pepper.' },
                     { step: 'Return chicken to the wok. Pour in the sauce mixture and stir until thickened. Add peanuts and spring onion greens. Serve immediately with rice.' }
+                ],
+                tips: [
+                    'Velveting the chicken (marinating with cornstarch) helps keep it tender and juicy during stir-frying.',
+                    'Adjust the amount of chilli flakes to control the spiciness of the dish.'
                 ]
             },
             {
                 id: 'hot-and-sour-soup',
-                name: 'Hot and Sour Soup (Chinese)',
+                name: 'Hot and Sour Soup',
                 region: 'Asian',
                 country: 'China',
                 description: 'A classic Chinese soup with a spicy and tangy broth, typically containing shredded pork, tofu, mushrooms, and bamboo shoots.',
                 image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Hot+Sour+Soup',
+                difficulty: 'Easy',
+                prepTime: '20 mins',
+                cookTime: '25 mins',
+                servings: 4,
+                culturalNote: 'Hot and Sour Soup is a popular Chinese soup, particularly in Sichuan and Hunan cuisines. Its distinctive flavour comes from the combination of vinegar and white pepper, providing both tang and heat.',
                 miseEnPlace: [
                     'Shred pork and rehydrate mushrooms.',
                     'Slice tofu and bamboo shoots.',
@@ -862,15 +1234,24 @@
                     { step: 'Stir in rice vinegar, soy sauce, white pepper, and chilli oil. Taste and adjust for desired sourness and spice.' },
                     { step: 'Slowly pour in cornstarch slurry while stirring constantly until soup thickens to desired consistency.' },
                     { step: 'Slowly drizzle in beaten egg while stirring gently to create egg ribbons. Remove from heat immediately. Garnish with chopped spring onions. Serve hot.' }
+                ],
+                tips: [
+                    'For a vegetarian version, omit the pork and use vegetable broth.',
+                    'Adjust the amount of white pepper and chilli oil to control the heat and tanginess to your preference.'
                 ]
             },
             {
                 id: 'kimchi-fried-rice',
-                name: 'Kimchi Fried Rice (Kimchi Bokkeumbap) (Korean)',
+                name: 'Kimchi Fried Rice (Kimchi Bokkeumbap)',
                 region: 'Asian',
                 country: 'Korea',
                 description: 'A popular Korean fried rice dish made with kimchi, rice, and often topped with a fried egg.',
                 image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Kimchi+Fried+Rice',
+                difficulty: 'Easy',
+                prepTime: '10 mins',
+                cookTime: '15 mins',
+                servings: 2,
+                culturalNote: 'Kimchi Bokkeumbap is a classic Korean comfort food, a delicious way to use up leftover rice and fermented kimchi. It\'s a quick and satisfying meal often enjoyed for lunch or a simple dinner.',
                 miseEnPlace: [
                     'Chop kimchi and onion.',
                     'Prepare rice (day-old is best).',
@@ -893,15 +1274,24 @@
                     { step: 'Add diced onion and cook until softened. Add chopped kimchi and cook for 3-5 minutes.' },
                     { step: 'Add day-old rice, gochujang, and soy sauce. Stir-fry vigorously until everything is well combined and rice is heated through. Drizzle with sesame oil.' },
                     { step: 'Serve hot, topped with the fried egg and chopped spring onions.' }
+                ],
+                tips: [
+                    'The older and more fermented the kimchi, the more flavourful your fried rice will be.',
+                    'For extra crunch, add a tablespoon of kimchi juice to the rice while stir-frying.'
                 ]
             },
             {
                 id: 'okonomiyaki',
-                name: 'Okonomiyaki (Japanese Savoury Pancake)',
+                name: 'Okonomiyaki',
                 region: 'Asian',
                 country: 'Japan',
                 description: 'A savoury Japanese pancake made with flour, eggs, and shredded cabbage, often filled with various ingredients and topped with special sauces.',
                 image: 'https://placehold.co/600x400/8B0000/FFFFFF?text=Okonomiyaki',
+                difficulty: 'Medium',
+                prepTime: '20 mins',
+                cookTime: '25 mins',
+                servings: 2,
+                culturalNote: 'Okonomiyaki translates to "what you like, grilled," reflecting its customizable nature. It\'s a popular street food and casual meal in Japan, especially in Osaka and Hiroshima, each with their distinct styles.',
                 miseEnPlace: [
                     'Shred cabbage.',
                     'Prepare batter ingredients.',
@@ -923,15 +1313,24 @@
                     { step: 'Heat oil in a large frying pan or griddle over medium heat. Pour a portion of the batter to form a round pancake. Arrange thin slices of pork belly on top.' },
                     { step: 'Cook for 5-7 minutes until the bottom is golden brown and crispy. Flip the pancake and cook for another 5-7 minutes until pork is cooked and pancake is cooked through.' },
                     { step: 'Transfer to a plate. Drizzle generously with okonomiyaki sauce and mayonnaise. Garnish with bonito flakes and aonori. Serve hot.' }
+                ],
+                tips: [
+                    'Do not overmix the batter; a few lumps are fine and will result in a lighter pancake.',
+                    'For an extra fluffy pancake, you can add a pinch of baking powder to the flour mixture.'
                 ]
             },
             {
                 id: 'thai-green-curry',
-                name: 'Thai Green Curry (Thai)',
+                name: 'Thai Green Curry',
                 region: 'Asian',
                 country: 'Thailand',
                 description: 'A vibrant and aromatic Thai curry with a spicy, creamy coconut milk base, often with chicken or vegetables.',
                 image: 'https://placehold.co/600x400/90EE90/000000?text=Green+Curry',
+                difficulty: 'Easy',
+                prepTime: '20 mins',
+                cookTime: '30 mins',
+                servings: 4,
+                culturalNote: 'Thai Green Curry is one of the most popular Thai curries, known for its vibrant green colour (from fresh green chillies) and a balance of spicy, sweet, and savoury flavours. It\'s a staple in Thai cuisine.',
                 miseEnPlace: [
                     'Chop chicken and vegetables.',
                     'Prepare green curry paste.',
@@ -953,15 +1352,24 @@
                     { step: 'Add bamboo shoots and simmer for 5-7 minutes until chicken is cooked through.' },
                     { step: 'Stir in fish sauce and palm sugar. Taste and adjust seasoning. Stir in Thai basil leaves just before serving.' },
                     { step: 'Serve hot with steamed jasmine rice, garnished with sliced red chillies.' }
+                ],
+                tips: [
+                    'For a richer flavour, cook the curry paste in a little coconut cream (the thick part from the top of the can) until the oil separates before adding the rest of the coconut milk.',
+                    'Fresh Thai basil is essential for the authentic aroma of green curry; don\'t substitute with regular basil if possible.'
                 ]
             },
             {
                 id: 'gochujang-pork',
-                name: 'Spicy Gochujang Pork (Jeyuk Bokkeum) (Korean)',
+                name: 'Spicy Gochujang Pork (Jeyuk Bokkeum)',
                 region: 'Asian',
                 country: 'Korea',
                 description: 'A spicy and savoury Korean stir-fried pork dish, marinated in a delicious gochujang-based sauce.',
                 image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Gochujang+Pork',
+                difficulty: 'Easy',
+                prepTime: '20 mins',
+                cookTime: '20 mins',
+                servings: 3,
+                culturalNote: 'Jeyuk Bokkeum is a popular Korean dish, often served as a main course with rice and various banchan (side dishes). It\'s known for its bold, spicy, and slightly sweet flavour from the gochujang marinade.',
                 miseEnPlace: [
                     'Slice pork thinly.',
                     'Chop vegetables.',
@@ -985,15 +1393,24 @@
                     { step: 'Heat a little oil in a wok or large frying pan over medium-high heat. Add marinated pork and stir-fry until cooked through.' },
                     { step: 'Add sliced onion and capsicum. Continue to stir-fry for 3-5 minutes until vegetables are tender-crisp.' },
                     { step: 'Stir in chopped spring onions. Serve hot with steamed rice.' }
+                ],
+                tips: [
+                    'Marinating the pork for a longer period (e.g., overnight) will result in deeper flavour penetration.',
+                    'Slice the pork very thinly to ensure it cooks quickly and absorbs the marinade well.'
                 ]
             },
             {
                 id: 'char-kway-teow',
-                name: 'Char Kway Teow (Malaysian/Singaporean)',
+                name: 'Char Kway Teow',
                 region: 'Asian',
                 country: 'Malaysia',
                 description: 'A popular Southeast Asian noodle dish made with flat rice noodles, prawns, eggs, bean sprouts, and Chinese sausage, stir-fried in a rich dark soy sauce.',
                 image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Char+Kway+Teow',
+                difficulty: 'Medium',
+                prepTime: '20 mins',
+                cookTime: '15 mins',
+                servings: 2,
+                culturalNote: 'Char Kway Teow is a beloved street food in Malaysia and Singapore, known for its smoky "wok hei" flavour achieved through high-heat stir-frying. It\'s a rich, savoury, and slightly sweet noodle dish.',
                 miseEnPlace: [
                     'Soak noodles (if dried).',
                     'Slice Chinese sausage.',
@@ -1018,15 +1435,24 @@
                     { step: 'Push ingredients to one side. Add noodles to the empty side and stir-fry briefly. Pour in the sauce and toss to coat the noodles.' },
                     { step: 'Create a well in the center. Crack eggs into the well and scramble quickly. Mix everything together. Add bean sprouts and chives, stir-fry for 1-2 minutes until heated through.' },
                     { step: 'Serve immediately.' }
+                ],
+                tips: [
+                    'Achieving "wok hei" (the smoky flavour) requires a very hot wok and quick stir-frying. Do not overcrowd the pan.',
+                    'Use fresh flat rice noodles if possible for the best texture; if using dried, ensure they are properly rehydrated but still firm.'
                 ]
             },
             {
                 id: 'roti-prata',
-                name: 'Roti Prata with Curry (Singaporean)',
+                name: 'Roti Prata with Curry',
                 region: 'Asian',
                 country: 'Singapore',
                 description: 'A popular flatbread dish, crispy on the outside and soft on the inside, typically served with a side of curry.',
                 image: 'https://placehold.co/600x400/D2B48C/000000?text=Roti+Prata',
+                difficulty: 'Beginner',
+                prepTime: '5 mins',
+                cookTime: '15 mins',
+                servings: 2,
+                culturalNote: 'Roti Prata is a beloved breakfast and supper dish in Singapore and Malaysia, often enjoyed with a variety of curries. Its flaky texture is a result of a unique dough-stretching technique.',
                 miseEnPlace: [
                     'Prepare curry (or use store-bought).',
                     'Have roti prata ready (frozen is common).',
@@ -1041,15 +1467,24 @@
                     { step: 'Place a piece of frozen roti prata onto the hot pan. Cook for 2-3 minutes per side, or until golden brown and crispy, pressing gently with a spatula.' },
                     { step: 'Once cooked, use both hands to gently "clap" the roti inwards from the edges to fluff it up and make it more airy.' },
                     { step: 'Repeat for remaining roti prata. Serve hot with your favourite curry.' }
+                ],
+                tips: [
+                    'Do not thaw the frozen roti prata before cooking; cook directly from frozen for the best texture.',
+                    'The "clapping" technique helps to separate the layers and make the roti even flakier.'
                 ]
             },
             {
                 id: 'ayam-goreng',
-                name: 'Ayam Goreng (Indonesian Fried Chicken)',
+                name: 'Ayam Goreng',
                 region: 'Asian',
                 country: 'Indonesia',
                 description: 'Indonesian-style fried chicken, marinated in a blend of spices and herbs, resulting in a flavourful and crispy exterior.',
                 image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Ayam+Goreng',
+                difficulty: 'Medium',
+                prepTime: '20 mins',
+                cookTime: '35 mins',
+                servings: 4,
+                culturalNote: 'Ayam Goreng refers to various kinds of Indonesian and Malaysian fried chicken. This version is typically marinated in a rich blend of spices before being fried, giving it a distinct aromatic flavour.',
                 miseEnPlace: [
                     'Cut chicken into pieces.',
                     'Prepare spice paste.',
@@ -1072,15 +1507,24 @@
                     { step: 'In a pot, combine marinated chicken and coconut water. Bring to a simmer and cook until chicken is tender and liquid has mostly evaporated (about 20-30 minutes).' },
                     { step: 'Heat vegetable oil in a deep pot to 170°C (340°F). Fry chicken pieces in batches until golden brown and crispy. Drain on paper towels.' },
                     { step: 'Serve hot with steamed rice and sambal.' }
+                ],
+                tips: [
+                    'For extra crispy chicken, you can double-fry it: fry once until cooked through, remove, let cool slightly, then fry again at a higher temperature until very crispy.',
+                    'Ensure the chicken pieces are relatively uniform in size for even cooking.'
                 ]
             },
             {
                 id: 'sinigang',
-                name: 'Sinigang (Filipino Sour Soup)',
+                name: 'Sinigang',
                 region: 'Asian',
                 country: 'Philippines',
                 description: 'A sour and savoury Filipino soup, typically made with pork, tamarind, and various vegetables.',
                 image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Sinigang',
+                difficulty: 'Easy',
+                prepTime: '20 mins',
+                cookTime: '1 hr',
+                servings: 4,
+                culturalNote: 'Sinigang is a popular Filipino sour soup, known for its distinct sour and savoury taste, often from tamarind. It\'s a comforting and hearty dish, especially popular during rainy seasons.',
                 miseEnPlace: [
                     'Cut pork into serving pieces.',
                     'Prepare vegetables (okra, taro, radish, long beans).',
@@ -1103,15 +1547,24 @@
                     { step: 'Add tamarind soup base mix (or fresh tamarind pulp) and green chilli. Simmer for 10 minutes.' },
                     { step: 'Add radish, okra, and long beans. Cook for 5-7 minutes until vegetables are tender-crisp. Stir in fish sauce to taste.' },
                     { step: 'Finally, add kangkong (or spinach) and cook for just 1-2 minutes until wilted. Serve hot with steamed rice.' }
+                ],
+                tips: [
+                    'The sourness of sinigang can be adjusted to your preference by adding more or less tamarind. Taste as you go!',
+                    'For a richer broth, you can brown the pork belly before boiling it.'
                 ]
             },
             {
                 id: 'taiwanese-fried-chicken',
-                name: 'Taiwanese Fried Chicken (Taiwanese)',
+                name: 'Taiwanese Fried Chicken',
                 region: 'Asian',
                 country: 'Taiwan',
                 description: 'Crispy and flavourful Taiwanese fried chicken, often seasoned with five-spice powder and served as a snack or street food.',
                 image: 'https://placehold.co/600x400/CD5C5C/FFFFFF?text=Taiwanese+Fried+Chicken',
+                difficulty: 'Medium',
+                prepTime: '20 mins',
+                cookTime: '20 mins',
+                servings: 3,
+                culturalNote: 'Taiwanese Fried Chicken, or "Ji Pai," is a popular street food snack in Taiwan, often found in night markets. It\'s known for its distinctive five-spice flavour and crispy coating.',
                 miseEnPlace: [
                     'Cut chicken into bite-sized pieces.',
                     'Prepare marinade and coating.',
@@ -1134,15 +1587,24 @@
                     { step: 'Heat vegetable oil in a deep pot to 170°C (340°F). Fry chicken in batches for 5-7 minutes until golden brown and cooked through. Remove and drain on a wire rack.' },
                     { step: 'Increase oil temperature to 190°C (375°F). Fry the chicken again for 1-2 minutes until extra crispy. In the last 30 seconds, add fresh basil leaves to the oil and fry until crispy. Remove chicken and basil, drain.' },
                     { step: 'Season fried chicken and basil with a sprinkle of five-spice powder and white pepper. Serve hot.' }
+                ],
+                tips: [
+                    'Using sweet potato flour or tapioca starch gives the fried chicken its characteristic light and crispy texture.',
+                    'The double-fry method ensures the chicken is both cooked through and extra crispy.'
                 ]
             },
             {
                 id: 'khao-pad',
-                name: 'Khao Pad (Thai Fried Rice) (Thai)',
+                name: 'Khao Pad (Thai Fried Rice)',
                 region: 'Asian',
                 country: 'Thailand',
                 description: 'A simple yet flavourful Thai fried rice dish, often made with chicken, prawns, or a combination, and seasoned with fish sauce and soy sauce.',
                 image: 'https://placehold.co/600x400/FFD700/000000?text=Khao+Pad',
+                difficulty: 'Easy',
+                prepTime: '15 mins',
+                cookTime: '15 mins',
+                servings: 3,
+                culturalNote: 'Khao Pad is a staple in Thai cuisine, a versatile fried rice dish that can be customised with various proteins and vegetables. It\'s a popular and comforting meal found across Thailand.',
                 miseEnPlace: [
                     'Cook rice (day-old is best).',
                     'Chop chicken/prawns and vegetables.',
@@ -1168,15 +1630,24 @@
                     { step: 'Push ingredients to one side. Crack eggs into the empty side and scramble. Mix with other ingredients.' },
                     { step: 'Add day-old rice, fish sauce, soy sauce, and sugar. Stir-fry vigorously until everything is well combined and rice is heated through and slightly crispy.' },
                     { step: 'Serve hot, garnished with fresh coriander and lime wedges.' }
+                ],
+                tips: [
+                    'Ensure your wok is very hot for the best fried rice texture, preventing it from becoming soggy.',
+                    'Use day-old rice as it has less moisture, which is ideal for stir-frying.'
                 ]
             },
             {
                 id: 'bulgogi',
-                name: 'Bulgogi (Korean Grilled Marinated Beef) (Korean)',
+                name: 'Bulgogi',
                 region: 'Asian',
                 country: 'Korea',
                 description: 'Thinly sliced beef marinated in a sweet and savoury sauce, typically grilled or stir-fried.',
                 image: 'https://placehold.co/600x400/A0522D/FFFFFF?text=Bulgogi',
+                difficulty: 'Easy',
+                prepTime: '20 mins',
+                cookTime: '20 mins',
+                servings: 4,
+                culturalNote: 'Bulgogi, meaning "fire meat," is one of the most popular Korean dishes, often grilled over an open flame or stir-fried. Its sweet and savoury marinade makes it a favourite worldwide.',
                 miseEnPlace: [
                     'Slice beef thinly (partially freeze for easier slicing).',
                     'Grate apple/pear.',
@@ -1198,15 +1669,24 @@
                     { step: 'Add thinly sliced beef to the marinade and mix thoroughly, ensuring all beef is coated. Marinate for at least 30 minutes (or overnight for best flavour).' },
                     { step: 'Heat a lightly oiled pan or grill over medium-high heat. Cook marinated beef in batches, stir-frying or grilling until cooked through and slightly caramelised. Do not overcrowd the pan.' },
                     { step: 'Serve hot with steamed rice and lettuce wraps.' }
+                ],
+                tips: [
+                    'Partially freezing the beef before slicing makes it much easier to get very thin, even slices.',
+                    'The grated Asian pear or apple helps tenderise the meat and adds a natural sweetness to the marinade.'
                 ]
             },
             {
                 id: 'dan-dan-noodles',
-                name: 'Dan Dan Noodles (Chinese)',
+                name: 'Dan Dan Noodles',
                 region: 'Asian',
                 country: 'China',
                 description: 'A classic Sichuan noodle dish featuring a spicy, savoury sauce, minced pork, and often preserved vegetables, served over noodles.',
                 image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Dan+Dan+Noodles',
+                difficulty: 'Medium',
+                prepTime: '20 mins',
+                cookTime: '20 mins',
+                servings: 2,
+                culturalNote: 'Dan Dan Noodles originated from Sichuan province in China, traditionally sold by street vendors who carried their wares on a "dandan" pole. It\'s famous for its complex spicy, savoury, and numbing flavours.',
                 miseEnPlace: [
                     'Prepare minced pork.',
                     'Chop preserved vegetables.',
@@ -1230,15 +1710,24 @@
                     { step: 'Heat a little oil in a pan. Add minced pork and cook until browned and crispy. Add chopped preserved vegetables and stir-fry for 1-2 minutes.' },
                     { step: 'Cook noodles according to package instructions. Drain well.' },
                     { step: 'Pour the sauce into serving bowls. Add cooked noodles and toss to coat. Top with minced pork mixture and chopped spring onions. Serve immediately.' }
+                ],
+                tips: [
+                    'The key to authentic Dan Dan Noodles is the balance of "ma la" (numbing and spicy) flavour. Adjust chilli oil and Sichuan peppercorn oil to your preference.',
+                    'Ensure all sauce ingredients are well combined before adding the noodles to get an even coating.'
                 ]
             },
             {
                 id: 'sushi-sashimi',
-                name: 'Sashimi Platter (Japanese)',
+                name: 'Sashimi Platter',
                 region: 'Asian',
                 country: 'Japan',
                 description: 'Thinly sliced raw fish or seafood, served without rice, showcasing the fresh quality of the ingredients.',
                 image: 'https://placehold.co/600x400/8B0000/FFFFFF?text=Sashimi+Platter',
+                difficulty: 'Advanced',
+                prepTime: '20 mins',
+                cookTime: '0 mins',
+                servings: 2,
+                culturalNote: 'Sashimi is a Japanese delicacy consisting of fresh raw fish or meat sliced into thin pieces. It is often the first course in a formal Japanese meal and is prized for its pristine freshness and presentation.',
                 miseEnPlace: [
                     'Ensure fish is sushi-grade and very fresh.',
                     'Slice fish thinly and artfully.',
@@ -1257,15 +1746,24 @@
                     { step: 'Ensure your fish is extremely fresh and sushi-grade. Use a very sharp knife to slice the fish thinly against the grain, at an angle, into uniform pieces.' },
                     { step: 'Arrange the sliced fish artfully on a chilled platter. Garnish with shredded daikon radish and shiso leaves.' },
                     { step: 'Serve immediately with small dishes of soy sauce, wasabi, and pickled ginger on the side.' }
+                ],
+                tips: [
+                    'Always use a very sharp knife for slicing sashimi to ensure clean cuts and preserve the texture of the fish.',
+                    'Keep the fish chilled until just before serving to maintain its freshness and quality.'
                 ]
             },
             {
                 id: 'thai-red-curry',
-                name: 'Thai Red Curry (Thai)',
+                name: 'Thai Red Curry',
                 region: 'Asian',
                 country: 'Thailand',
                 description: 'A popular and versatile Thai curry with a rich, spicy, and creamy coconut milk base, often with chicken or beef.',
                 image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Red+Curry',
+                difficulty: 'Easy',
+                prepTime: '20 mins',
+                cookTime: '30 mins',
+                servings: 4,
+                culturalNote: 'Thai Red Curry is a staple in Thai cuisine, known for its vibrant colour and balanced flavours. It\'s typically spicier than Massaman but milder than Green Curry, making it a popular choice for many.',
                 miseEnPlace: [
                     'Chop chicken/beef and vegetables.',
                     'Prepare red curry paste.',
@@ -1287,15 +1785,24 @@
                     { step: 'Add bell peppers and green beans. Simmer for 5-7 minutes until chicken is cooked through and vegetables are tender-crisp.' },
                     { step: 'Stir in fish sauce and palm sugar. Taste and adjust seasoning. Stir in Thai basil leaves just before serving.' },
                     { step: 'Serve hot with steamed jasmine rice.' }
+                ],
+                tips: [
+                    'For a richer curry, cook the curry paste in a little coconut cream (the thick part from the top of the can) until the oil separates before adding the rest of the coconut milk.',
+                    'Adjust the amount of red curry paste to control the spice level to your preference.'
                 ]
             },
             {
                 id: 'bibim-naengmyeon',
-                name: 'Bibim Naengmyeon (Korean Spicy Cold Noodles) (Korean)',
+                name: 'Bibim Naengmyeon',
                 region: 'Asian',
                 country: 'Korea',
                 description: 'A refreshing and spicy Korean cold noodle dish, perfect for hot weather, with a sweet, tangy, and spicy gochujang sauce.',
                 image: 'https://placehold.co/600x400/DC143C/FFFFFF?text=Bibim+Naengmyeon',
+                difficulty: 'Medium',
+                prepTime: '20 mins',
+                cookTime: '15 mins',
+                servings: 2,
+                culturalNote: 'Bibim Naengmyeon is a popular cold noodle dish in Korea, especially enjoyed during the summer months. It\'s known for its refreshing coolness combined with a fiery, tangy, and sweet sauce.',
                 miseEnPlace: [
                     'Cook noodles and cool.',
                     'Prepare cucumber and radish.',
@@ -1319,15 +1826,24 @@
                     { step: 'In a bowl, combine gochujang, gochugaru, rice vinegar, sugar, sesame oil, and minced garlic to make the sauce. Mix well.' },
                     { step: 'In a large bowl, combine the chilled noodles with the sauce. Add julienned cucumber and Korean radish. Toss everything together until well combined.' },
                     { step: 'Divide into serving bowls. Top each bowl with a halved boiled egg and a sprinkle of roasted sesame seeds. Serve immediately.' }
+                ],
+                tips: [
+                    'The key to a refreshing Bibim Naengmyeon is to serve the noodles and sauce very cold. You can even add a few ice cubes to the bowl.',
+                    'Adjust the amount of gochujang and sugar to achieve your preferred balance of sweetness and spice.'
                 ]
             },
             {
                 id: 'sweet-sour-pork',
-                name: 'Sweet and Sour Pork (Chinese)',
+                name: 'Sweet and Sour Pork',
                 region: 'Asian',
                 country: 'China',
                 description: 'A classic Chinese dish featuring crispy fried pork pieces tossed in a vibrant sweet and sour sauce with bell peppers and pineapple.',
                 image: 'https://placehold.co/600x400/FF6347/FFFFFF?text=Sweet+Sour+Pork',
+                difficulty: 'Medium',
+                prepTime: '25 mins',
+                cookTime: '25 mins',
+                servings: 3,
+                culturalNote: 'Sweet and Sour Pork is a globally popular Chinese dish, known for its bright colours and balanced flavours. It\'s a comforting and familiar dish for many who are new to Chinese cuisine.',
                 miseEnPlace: [
                     'Cut pork into bite-sized pieces.',
                     'Chop bell peppers and onion.',
@@ -1355,15 +1871,24 @@
                     { step: 'In a separate pan, combine ketchup, white vinegar, sugar, soy sauce, and water to make the sauce. Bring to a simmer.' },
                     { step: 'Add diced bell peppers, onion, and pineapple chunks to the sauce. Simmer for 3-5 minutes until vegetables are tender-crisp.' },
                     { step: 'Add fried pork to the sauce and toss to coat evenly. Serve hot with steamed rice.' }
+                ],
+                tips: [
+                    'For extra crispy pork, ensure the oil is at the correct temperature and do not overcrowd the pot when frying.',
+                    'Adjust the balance of sugar and vinegar in the sauce to suit your personal preference for sweetness and tanginess.'
                 ]
             },
             {
                 id: 'shabu-shabu',
-                name: 'Shabu-Shabu (Japanese Hot Pot) (Japanese)',
+                name: 'Shabu-Shabu',
                 region: 'Asian',
                 country: 'Japan',
                 description: 'A Japanese hot pot dish where thinly sliced meat and vegetables are cooked briefly in a simmering broth at the table and dipped in sauces.',
                 image: 'https://placehold.co/600x400/8B0000/FFFFFF?text=Shabu-Shabu',
+                difficulty: 'Medium',
+                prepTime: '30 mins',
+                cookTime: '30 mins',
+                servings: 4,
+                culturalNote: 'Shabu-Shabu is a Japanese hot pot dish where thinly sliced meat and vegetables are cooked by diners at the table in a simmering broth. The name "shabu-shabu" comes from the sound made when the ingredients are stirred in the pot.',
                 miseEnPlace: [
                     'Prepare dashi broth.',
                     'Slice beef very thinly.',
@@ -1386,15 +1911,24 @@
                     { step: 'Arrange thinly sliced beef, napa cabbage, shiitake mushrooms, enoki mushrooms, and tofu on a large platter.' },
                     { step: 'At the table, each person dips a slice of beef into the simmering broth for a few seconds until cooked. Then, dip the cooked beef into ponzu or sesame sauce.' },
                     { step: 'Add vegetables and tofu to the broth and cook until tender. Enjoy with the dipping sauces. Towards the end, add udon noodles to cook in the flavourful broth.' }
+                ],
+                tips: [
+                    'Ensure the beef is sliced extremely thin for quick cooking in the hot pot.',
+                    'Prepare all your ingredients beforehand, as shabu-shabu is a communal dining experience where cooking happens at the table.'
                 ]
             },
             {
                 id: 'gong-bao-shrimp',
-                name: 'Gong Bao Shrimp (Chinese)',
+                name: 'Gong Bao Shrimp',
                 region: 'Asian',
                 country: 'China',
                 description: 'A spicy and savoury stir-fry featuring succulent shrimp, peanuts, and vegetables in a classic Gong Bao sauce.',
                 image: 'https://placehold.co/600x400/CD5C5C/FFFFFF?text=Gong+Bao+Shrimp',
+                difficulty: 'Medium',
+                prepTime: '20 mins',
+                cookTime: '15 mins',
+                servings: 3,
+                culturalNote: 'Gong Bao Shrimp is a popular variation of the classic Kung Pao Chicken, offering a seafood alternative with the same beloved spicy, sweet, and tangy flavour profile.',
                 miseEnPlace: [
                     'Peel and devein shrimp.',
                     'Chop bell peppers and spring onions.',
@@ -1419,15 +1953,24 @@
                     { step: 'Heat oil in a wok. Add marinated shrimp and stir-fry until cooked through. Remove shrimp.' },
                     { step: 'Add garlic, ginger, and spring onion whites to the wok and stir-fry briefly. Add bell pepper.' },
                     { step: 'Return shrimp to the wok. Pour in the sauce mixture and stir until thickened. Add peanuts and spring onion greens. Serve immediately with rice.' }
+                ],
+                tips: [
+                    'Do not overcook the shrimp, as they can become rubbery. Cook until just pink and opaque.',
+                    'Adjust the amount of chilli flakes to control the spice level according to your preference.'
                 ]
             },
             {
                 id: 'thai-basil-chicken',
-                name: 'Thai Basil Chicken (Pad Krapow Gai) (Thai)',
+                name: 'Thai Basil Chicken (Pad Krapow Gai)',
                 region: 'Asian',
                 country: 'Thailand',
                 description: 'A quick and spicy Thai stir-fry with minced chicken, holy basil, and chillies, served over rice with a fried egg.',
                 image: 'https://placehold.co/600x400/FF6347/FFFFFF?text=Thai+Basil+Chicken',
+                difficulty: 'Easy',
+                prepTime: '15 mins',
+                cookTime: '15 mins',
+                servings: 2,
+                culturalNote: 'Pad Krapow Gai is a popular Thai street food dish, known for its quick preparation and intense flavours. The use of holy basil (krapow) is essential for its authentic taste.',
                 miseEnPlace: [
                     'Mince chicken.',
                     'Chop garlic and chillies.',
@@ -1450,15 +1993,24 @@
                     { step: 'Add fish sauce, soy sauce, oyster sauce, and sugar. Stir well to combine.' },
                     { step: 'Stir in holy basil leaves and cook for 1-2 minutes until wilted. Remove from heat.' },
                     { step: 'Fry an egg sunny side up. Serve the basil chicken over steamed rice, topped with the fried egg.' }
+                ],
+                tips: [
+                    'Holy basil is crucial for the authentic flavour of Pad Krapow. If unavailable, Thai basil is a good substitute, but avoid sweet basil if possible.',
+                    'The dish cooks very quickly, so have all your ingredients prepped and ready before you start stir-frying.'
                 ]
             },
             {
                 id: 'japchae',
-                name: 'Japchae (Korean Glass Noodle Stir-fry) (Korean)',
+                name: 'Japchae',
                 region: 'Asian',
                 country: 'Korea',
                 description: 'A colourful and flavourful Korean dish of stir-fried glass noodles with various vegetables and meat.',
                 image: 'https://placehold.co/600x400/FFD700/000000?text=Japchae',
+                difficulty: 'Medium',
+                prepTime: '30 mins',
+                cookTime: '20 mins',
+                servings: 4,
+                culturalNote: 'Japchae is a traditional Korean dish made with glass noodles (dangmyeon) stir-fried with various vegetables and meat. It\'s often served as a side dish (banchan) or a main course, especially during holidays and special occasions.',
                 miseEnPlace: [
                     'Soak glass noodles.',
                     'Slice beef and vegetables.',
@@ -1482,15 +2034,24 @@
                     { step: 'Sauté beef (if using) and each vegetable (spinach, carrots, onion, mushrooms) separately with a little oil and garlic. Season lightly.' },
                     { step: 'In a large bowl, combine cooked noodles, sautéed beef and vegetables. Add soy sauce, sugar, sesame oil, and minced garlic. Toss everything together until well combined.' },
                     { step: 'Serve warm or at room temperature, garnished with roasted sesame seeds.' }
+                ],
+                tips: [
+                    'Cook each vegetable separately to maintain their distinct textures and colours.',
+                    'Toss the noodles and vegetables with the sauce while they are still warm to ensure even coating and flavour absorption.'
                 ]
             },
             {
                 id: 'wonton-soup',
-                name: 'Wonton Soup (Chinese)',
+                name: 'Wonton Soup',
                 region: 'Asian',
                 country: 'China',
                 description: 'A comforting Chinese soup with delicate wontons (dumplings) in a clear, savoury broth, often with leafy greens.',
                 image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Wonton+Soup',
+                difficulty: 'Medium',
+                prepTime: '30 mins',
+                cookTime: '20 mins',
+                servings: 4,
+                culturalNote: 'Wonton soup is a classic Chinese comfort food, especially popular in Cantonese cuisine. Wontons are a type of dumpling, and the soup is cherished for its delicate flavours and warmth.',
                 miseEnPlace: [
                     'Prepare wonton filling.',
                     'Wrap wontons.',
@@ -1513,15 +2074,24 @@
                     { step: 'Place a teaspoon of filling in the center of a wonton wrapper. Moisten the edges with water. Fold into desired shape (e.g., triangle, purse). Press to seal tightly.' },
                     { step: 'Bring chicken broth to a simmer in a pot. Add wontons and cook for 3-5 minutes until they float and are cooked through. Add bok choy and cook until wilted.' },
                     { step: 'Ladle soup and wontons into bowls. Garnish with chopped spring onions. Serve hot.' }
+                ],
+                tips: [
+                    'Ensure the wontons are sealed tightly to prevent the filling from escaping during cooking.',
+                    'For a clearer broth, skim any foam that rises to the surface during simmering.'
                 ]
             },
             {
                 id: 'chicken-teriyaki',
-                name: 'Chicken Teriyaki (Japanese)',
+                name: 'Chicken Teriyaki',
                 region: 'Asian',
                 country: 'Japan',
                 description: 'Grilled or pan-fried chicken glazed with a sweet and savoury teriyaki sauce, a popular Japanese dish.',
                 image: 'https://placehold.co/600x400/8B0000/FFFFFF?text=Chicken+Teriyaki',
+                difficulty: 'Easy',
+                prepTime: '15 mins',
+                cookTime: '20 mins',
+                servings: 2,
+                culturalNote: 'Teriyaki is a cooking technique used in Japanese cuisine where foods are grilled or broiled with a glaze of soy sauce, mirin, and sugar. Chicken Teriyaki is a very popular dish globally due to its appealing sweet and savoury flavour.',
                 miseEnPlace: [
                     'Cut chicken into pieces.',
                     'Mix teriyaki sauce ingredients.',
@@ -1543,15 +2113,24 @@
                     { step: 'Heat a little oil in a pan over medium-high heat. Place chicken thighs skin-side down and cook until skin is crispy and golden brown. Flip and cook other side until almost cooked through.' },
                     { step: 'Pour the teriyaki sauce over the chicken. Bring to a simmer and cook, spooning sauce over chicken, until sauce thickens and glazes the chicken (about 5-7 minutes).' },
                     { step: 'Remove chicken from pan and slice. Serve hot over steamed rice, drizzled with remaining sauce, and garnished with sesame seeds and chopped spring onions.' }
+                ],
+                tips: [
+                    'For a thicker sauce, you can add a cornstarch slurry to the sauce while it simmers.',
+                    'Marinating the chicken in a little of the teriyaki sauce before cooking can enhance its flavour.'
                 ]
             },
             {
                 id: 'bibimbap-vegetarian',
-                name: 'Vegetarian Bibimbap (Korean)',
+                name: 'Vegetarian Bibimbap',
                 region: 'Asian',
                 country: 'Korea',
                 description: 'A vibrant and healthy vegetarian version of the classic Korean mixed rice dish, packed with colourful vegetables.',
                 image: 'https://placehold.co/600x400/FFD700/000000?text=Veg+Bibimbap',
+                difficulty: 'Easy',
+                prepTime: '25 mins',
+                cookTime: '20 mins',
+                servings: 2,
+                culturalNote: 'This vegetarian version of Bibimbap offers the same vibrant colours and balanced flavours as the traditional dish, making it a healthy and delicious meat-free option in Korean cuisine.',
                 miseEnPlace: [
                     'Cook rice.',
                     'Prepare various vegetables (julienne, sauté).',
@@ -1573,15 +2152,24 @@
                     { step: 'Cook rice. Prepare each vegetable (spinach, carrots, courgette, mushrooms, bean sprouts) by sautéing separately with a little garlic and sesame oil. Season lightly.' },
                     { step: 'Fry an egg sunny side up (if using). In a bowl, combine gochujang, sesame oil, and a little sugar for the sauce.' },
                     { step: 'Assemble bowls: place warm rice at the bottom. Artfully arrange each prepared vegetable and a fried egg (if using) on top. Serve with the gochujang sauce on the side.' }
+                ],
+                tips: [
+                    'For a completely vegan version, omit the egg and ensure your gochujang is vegan-friendly (some contain fish products).',
+                    'The visual appeal is key in Bibimbap; arrange the colourful vegetables neatly over the rice.'
                 ]
             },
             {
                 id: 'chicken-adobo-vegetarian',
-                name: 'Vegetarian Adobo (Filipino)',
+                name: 'Vegetarian Adobo',
                 region: 'Asian',
                 country: 'Philippines',
                 description: 'A vegetarian take on the classic Filipino adobo, using mushrooms or tofu instead of meat, braised in vinegar, soy sauce, garlic, and peppercorns.',
                 image: 'https://placehold.co/600x400/8B4513/FFFFFF?text=Veg+Adobo',
+                difficulty: 'Easy',
+                prepTime: '15 mins',
+                cookTime: '30 mins',
+                servings: 4,
+                culturalNote: 'This vegetarian adaptation of Filipino Adobo maintains the signature tangy and savoury flavour profile of the original, making it accessible to a wider audience while still celebrating Filipino culinary traditions.',
                 miseEnPlace: [
                     'Slice mushrooms/tofu.',
                     'Crush garlic cloves.',
@@ -1601,22 +2189,13 @@
                     { step: 'Reduce heat, cover, and simmer for 15-20 minutes, or until mushrooms are tender and sauce has reduced slightly. Stir occasionally.' },
                     { step: 'Remove lid and continue to simmer until sauce reduces and thickens slightly. Taste and adjust seasoning.' },
                     { step: 'Serve hot with steamed rice.' }
+                ],
+                tips: [
+                    'For a deeper flavour, allow the adobo to rest overnight in the refrigerator; the flavours will meld beautifully.',
+                    'You can pan-fry the mushrooms or tofu separately before adding to the sauce for a firmer texture.'
                 ]
             }
         ];
-
-        // Get DOM elements
-        const recipeSelect = document.getElementById('recipe-select');
-        const countrySelect = document.getElementById('country-select'); // Renamed from regionSelect
-        const loadRecipeBtn = document.getElementById('load-recipe-btn');
-        const recipeDisplay = document.getElementById('recipe-display');
-        const recipeTitle = document.getElementById('recipe-title');
-        const recipeDescription = document.getElementById('recipe-description');
-        const miseEnPlaceList = document.getElementById('mise-en-place-list');
-        const ingredientsList = document.getElementById('ingredients-list');
-        const instructionsList = document.getElementById('instructions-list');
-
-        let currentRecipe = null; // To store the currently displayed recipe object
 
         // Populate recipe select dropdown
         function populateRecipeSelect() {
@@ -1634,7 +2213,7 @@
         }
 
         // Event listener for country filter
-        countrySelect.addEventListener('change', populateRecipeSelect); // Now calls populateRecipeSelect directly
+        countrySelect.addEventListener('change', populateRecipeSelect);
 
         // Function to display a selected recipe
         function displayRecipe(recipeId) {
@@ -1642,7 +2221,6 @@
 
             if (!currentRecipe) {
                 recipeDisplay.classList.add('hidden');
-                // Using console.error instead of alert for better user experience in a real app
                 console.error('Please select a valid recipe.');
                 return;
             }
@@ -1656,15 +2234,28 @@
                 recipeImageElement = document.createElement('img');
                 recipeImageElement.id = 'recipe-main-image';
                 recipeImageElement.className = 'w-full h-64 object-cover rounded-lg mb-6';
-                recipeDisplay.prepend(recipeImageElement); // Add it at the top of the display section
+                recipeDisplay.prepend(recipeImageElement);
             }
             recipeImageElement.src = currentRecipe.image;
             recipeImageElement.alt = currentRecipe.name;
 
-
             // Update recipe title and description
             recipeTitle.textContent = currentRecipe.name;
             recipeDescription.textContent = currentRecipe.description;
+
+            // Update recipe meta info
+            recipeDifficulty.textContent = currentRecipe.difficulty;
+            recipePrepTime.textContent = currentRecipe.prepTime;
+            recipeCookTime.textContent = currentRecipe.cookTime;
+            recipeServings.textContent = currentRecipe.servings;
+
+            // Update Cultural Note
+            if (currentRecipe.culturalNote) {
+                culturalNoteSection.classList.remove('hidden');
+                culturalNoteText.textContent = currentRecipe.culturalNote;
+            } else {
+                culturalNoteSection.classList.add('hidden');
+            }
 
             // Populate Mise en Place
             miseEnPlaceList.innerHTML = '';
@@ -1695,15 +2286,24 @@
                 ingredientsList.appendChild(ingredientDiv);
             });
 
-            // Populate Instructions
+            // Populate Instructions with Glossary Terms
             instructionsList.innerHTML = '';
             currentRecipe.instructions.forEach((instruction, index) => {
                 const li = document.createElement('li');
                 li.className = 'p-4 border border-gray-200 rounded-lg bg-white flex items-start space-x-3';
+
+                let instructionText = instruction.step;
+                // Replace glossary terms with clickable spans
+                for (const term in glossaryTerms) {
+                    // Create a regex to find the whole word, case-insensitive
+                    const regex = new RegExp(`\\b(${term})\\b`, 'gi');
+                    instructionText = instructionText.replace(regex, `<span class="glossary-term" data-term="${term.toLowerCase()}">$1</span>`);
+                }
+
                 li.innerHTML = `
                     <label class="checkbox-label">
                         <input type="checkbox" class="step-checkbox" data-step-index="${index}">
-                        <span class="text-lg text-gray-800 flex-1">${index + 1}. ${instruction.step}</span>
+                        <span class="text-lg text-gray-800 flex-1">${index + 1}. ${instructionText}</span>
                     </label>
                 `;
                 instructionsList.appendChild(li);
@@ -1720,6 +2320,27 @@
                     }
                 });
             });
+
+            // Add event listeners for glossary terms
+            document.querySelectorAll('.glossary-term').forEach(termSpan => {
+                termSpan.addEventListener('click', function() {
+                    const term = this.dataset.term;
+                    openGlossaryModal(term);
+                });
+            });
+
+            // Populate Chef's Tips
+            if (currentRecipe.tips && currentRecipe.tips.length > 0) {
+                chefTipsSection.classList.remove('hidden');
+                chefTipsList.innerHTML = '';
+                currentRecipe.tips.forEach(tip => {
+                    const li = document.createElement('li');
+                    li.textContent = tip;
+                    chefTipsList.appendChild(li);
+                });
+            } else {
+                chefTipsSection.classList.add('hidden');
+            }
         }
 
         // Function to show substitute text
@@ -1730,6 +2351,29 @@
                 button.textContent = substituteElement.classList.contains('hidden') ? 'Show Substitute (NZ)' : 'Hide Substitute';
             }
         }
+
+        // Functions for Glossary Modal
+        function openGlossaryModal(term) {
+            const definition = glossaryTerms[term];
+            if (definition) {
+                glossaryTermTitle.textContent = term.charAt(0).toUpperCase() + term.slice(1); // Capitalize first letter
+                glossaryTermDefinition.textContent = definition;
+                glossaryModal.style.display = 'flex'; // Use flex to center
+            } else {
+                console.error(`Definition not found for term: ${term}`);
+            }
+        }
+
+        function closeGlossaryModal() {
+            glossaryModal.style.display = 'none';
+        }
+
+        // Close modal if user clicks outside of it
+        window.addEventListener('click', (event) => {
+            if (event.target === glossaryModal) {
+                closeGlossaryModal();
+            }
+        });
 
         // Event listener for loading recipe
         loadRecipeBtn.addEventListener('click', () => {
