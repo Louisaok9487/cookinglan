@@ -73,7 +73,7 @@
             background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
             backdrop-filter: blur(5px); /* Frosted glass effect */
             -webkit-backdrop-filter: blur(5px); /* Safari support */
-            display: flex;
+            /* Removed display: flex; from here */
             justify-content: center;
             align-items: center;
         }
@@ -615,8 +615,8 @@
                     'Prepare beef slices and herbs.',
                 ],
                 ingredients: [
-                    { name: 'Beef Bones', quantity: '1kg', unit: '', visual: 'https://placehold.co/100x100/A0522D/FFFFFF?text=Beef+Bones', substitute: null },
-                    { name: 'Beef Brisket', quantity: '500g', unit: '', visual: 'https://placehold.co/100x100/A0522D/FFFFFF?text=Beef+Brisket', substitute: 'Beef Chuck' },
+                    { name: 'Beef Bones', quantity: '1kg', unit: '', visual: 'https://placehold.co/100x100/A0522D/000000?text=Beef+Bones', substitute: null },
+                    { name: 'Beef Brisket', quantity: '500g', unit: '', visual: 'https://placehold.co/100x100/A0522D/000000?text=Beef+Brisket', substitute: 'Beef Chuck' },
                     { name: 'Flat Rice Noodles', quantity: '400g', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Rice+Noodles', substitute: null },
                     { name: 'Star Anise', quantity: '5', unit: '', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Star+Anise', substitute: null },
                     { name: 'Cinnamon Stick', quantity: '1', unit: '', visual: 'https://placehold.co/100x100/D2B48C/000000?text=Cinnamon', substitute: null },
@@ -855,7 +855,7 @@
                 ],
                 ingredients: [
                     { name: 'Cooked Rice', quantity: '2 cups', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Rice', substitute: null },
-                    { name: 'Ground Beef', quantity: '150g', unit: '', visual: 'https://placehold.co/100x100/A0522D/FFFFFF?text=Ground+Beef', substitute: 'Mushrooms or Tofu (for vegetarian)' },
+                    { name: 'Ground Beef', quantity: '150g', unit: '', visual: 'https://placehold.co/100x100/A0522D/000000?text=Ground+Beef', substitute: 'Mushrooms or Tofu (for vegetarian)' },
                     { name: 'Spinach', quantity: '1 bunch', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spinach', substitute: null },
                     { name: 'Carrots', quantity: '1', unit: 'julienned', visual: 'https://placehold.co/100x100/F4A460/000000?text=Carrots', substitute: null },
                     { name: 'Courgette', quantity: '1/2', unit: 'julienned', visual: 'https://placehold.co/100x100/90EE90/000000?text=Courgette', substitute: 'Cucumber' },
@@ -1654,7 +1654,7 @@
                     'Chop spring onions and garlic.',
                 ],
                 ingredients: [
-                    { name: 'Beef Sirloin or Ribeye', quantity: '500g', unit: 'thinly sliced', visual: 'https://placehold.co/100x100/A0522D/FFFFFF?text=Beef+Sirloin', substitute: 'Beef Chuck (slice very thin)' },
+                    { name: 'Beef Sirloin or Ribeye', quantity: '500g', unit: 'thinly sliced', visual: 'https://placehold.co/100x100/A0522D/000000?text=Beef+Sirloin', substitute: 'Beef Chuck (slice very thin)' },
                     { name: 'Soy Sauce', quantity: '1/2 cup', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
                     { name: 'Sugar', quantity: '3 tbsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
                     { name: 'Sesame Oil', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/F0E68C/000000?text=Sesame+Oil', substitute: null },
@@ -1896,7 +1896,7 @@
                     'Prepare dipping sauces.',
                 ],
                 ingredients: [
-                    { name: 'Thinly Sliced Beef (for hot pot)', quantity: '500g', unit: '', visual: 'https://placehold.co/100x100/A0522D/FFFFFF?text=Beef', substitute: 'Pork or Chicken' },
+                    { name: 'Thinly Sliced Beef (for hot pot)', quantity: '500g', unit: '', visual: 'https://placehold.co/100x100/A0522D/000000?text=Beef', substitute: 'Pork or Chicken' },
                     { name: 'Dashi Stock', quantity: '6 cups', unit: '', visual: 'https://placehold.co/100x100/A9A9A9/000000?text=Dashi+Stock', substitute: 'Light Chicken Broth' },
                     { name: 'Napa Cabbage', quantity: '1/2 head', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Napa+Cabbage', substitute: null },
                     { name: 'Shiitake Mushrooms', quantity: '8', unit: '', visual: 'https://placehold.co/100x100/CD853F/FFFFFF?text=Mushrooms', substitute: 'Button Mushrooms' },
@@ -1940,7 +1940,7 @@
                     { name: 'Bell Pepper', quantity: '1/2', unit: 'diced', visual: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Bell+Pepper', substitute: null },
                     { name: 'Spring Onions', quantity: '2', unit: 'chopped', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spring+Onions', substitute: null },
                     { name: 'Soy Sauce', quantity: '2 tbsp', unit: '', visual: 'https://placehold.co/100x100/8B0000/FFFFFF?text=Soy+Sauce', substitute: null },
-                    { name: 'Rice Vinegar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/E0FFFF/000000?text=Rice+Vinegar', substitute: 'White Vinegar' },
+                    { name: 'Rice Vinegar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co:400/E0FFFF/000000?text=Rice+Vinegar', substitute: 'White Vinegar' },
                     { name: 'Sugar', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F8F8F8/000000?text=Sugar', substitute: null },
                     { name: 'Cornstarch', quantity: '1 tbsp', unit: '', visual: 'https://placehold.co/100x100/F5F5DC/000000?text=Cornstarch', substitute: null },
                     { name: 'Chilli Flakes', quantity: '1 tsp', unit: '', visual: 'https://placehold.co/100x100/DC143C/FFFFFF?text=Chilli+Flakes', substitute: null },
@@ -2018,7 +2018,7 @@
                 ],
                 ingredients: [
                     { name: 'Sweet Potato Glass Noodles (Dangmyeon)', quantity: '200g', unit: '', visual: 'https://placehold.co/100x100/F0F8FF/000000?text=Glass+Noodles', substitute: 'Vermicelli Noodles' },
-                    { name: 'Beef Sirloin', quantity: '100g', unit: 'thinly sliced', visual: 'https://placehold.co/100x100/A0522D/FFFFFF?text=Beef+Sirloin', substitute: 'Mushrooms or Tofu' },
+                    { name: 'Beef Sirloin', quantity: '100g', unit: 'thinly sliced', visual: 'https://placehold.co/100x100/A0522D/000000?text=Beef+Sirloin', substitute: 'Mushrooms or Tofu' },
                     { name: 'Spinach', quantity: '1 cup', unit: '', visual: 'https://placehold.co/100x100/90EE90/000000?text=Spinach', substitute: null },
                     { name: 'Carrots', quantity: '1', unit: 'julienned', visual: 'https://placehold.co/100x100/F4A460/000000?text=Carrots', substitute: null },
                     { name: 'Onion', quantity: '1/2', unit: 'sliced', visual: 'https://placehold.co/100x100/DDA0DD/000000?text=Onion', substitute: null },
